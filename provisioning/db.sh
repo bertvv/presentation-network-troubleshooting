@@ -17,6 +17,10 @@ mariadb_root_password='7OdFobyak}0vedutNat+'
 wordpress_database='wordpress'
 wordpress_user='wordpress_user'
 wordpress_password='Amt_OtMat7'
+
+demo_database='demo'
+demo_user='demo_user'
+demo_password='ArfovWap_OwkUfeaf4'
 #}}}
 
 main() {
@@ -106,23 +110,21 @@ _EOF_
 }
 
 initialize_demo_db() {
-  local db='demo'
-  local usr='demo'
-  local passwd='demo'
+  ensure_db_exists "${demo_database}" "${demo_user}" "${demo_password}"
 
-  ensure_db_exists "${db}" "${usr}" "${passwd}"
+  info "Inserting data into database ${demo_database}"
 
-  info "Inserting data into database ${db}"
+  table="${demo_database}_tbl"
 
-  mysql --user="${usr}" --password="${passwd}" "${db}" << _EOF_
-DROP TABLE IF EXISTS demo;
-CREATE TABLE demo (
+  mysql --user="${demo_user}" --password="${demo_password}" "${demo_database}" << _EOF_
+DROP TABLE IF EXISTS ${table}_tbl;
+CREATE TABLE ${table} (
   id int(5) NOT NULL AUTO_INCREMENT,
   name varchar(50) DEFAULT NULL,
   PRIMARY KEY(id)
 );
-INSERT INTO demo (name) VALUES ("Tux");
-INSERT INTO demo (name) VALUES ("Johnny");
+INSERT INTO ${table} (name) VALUES ("Tux");
+INSERT INTO ${table} (name) VALUES ("Johnny");
 _EOF_
 
 }

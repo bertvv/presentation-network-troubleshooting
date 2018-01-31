@@ -8,10 +8,10 @@
 <?php
 // Variables
 $db_host='192.168.56.73';
-$db_user='demo';
+$db_user='demo_user';
 $db_name='demo';
-$db_password='demo';
-$db_table='demo';
+$db_password='ArfovWap_OwkUfeaf4';
+$db_table='demo_tbl';
 
 // Connecting, selecting database
 $link = mysql_connect($db_host, $db_user, $db_password)
