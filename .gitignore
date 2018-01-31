@@ -3,5 +3,5 @@
 # Vagrant directory
 .vagrant
 
-# Generated presentation
-gh-pages/
+# Ignore PDF (handouts)
+*.pdf
