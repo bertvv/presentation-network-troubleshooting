@@ -38,7 +38,7 @@ help: ## Show this help message (default)
 
 all: $(STYLE_FILE) $(OUTPUT)/index.html ## Build the presentation (but not the handouts)
 
-handouts: handouts.pdf ## Generate PDF handouts
+handouts: $(OUTPUT)/handouts.pdf ## Generate PDF handouts
 
 clean: ## Deletes the presentation and handouts (not reveal.js)
 	rm -f $(OUTPUT)/*.html
