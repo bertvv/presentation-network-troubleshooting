@@ -13,10 +13,6 @@ set -o pipefail
 #{{{ Variables
 IFS=$'\t\n'   # Split on newlines and tabs (but not on spaces)
 
-#mariadb_root_password='7OdFobyak}0vedutNat+'
-#wordpress_database='wordpress'
-#wordpress_user='wordpress_user'
-#wordpress_password='Amt_OtMat7'
 #}}}
 
 main() {
