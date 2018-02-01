@@ -117,14 +117,14 @@ initialize_demo_db() {
   table="${demo_database}_tbl"
 
   mysql --user="${demo_user}" --password="${demo_password}" "${demo_database}" << _EOF_
-DROP TABLE IF EXISTS ${table}_tbl;
+DROP TABLE IF EXISTS ${table};
 CREATE TABLE ${table} (
   id int(5) NOT NULL AUTO_INCREMENT,
   name varchar(50) DEFAULT NULL,
   PRIMARY KEY(id)
 );
-INSERT INTO ${table} (name) VALUES ("Tux");
-INSERT INTO ${table} (name) VALUES ("Johnny");
+INSERT INTO ${table} (name) VALUES ("Tuxedo T. Penguin");
+INSERT INTO ${table} (name) VALUES ("Johnny Tables");
 _EOF_
 
 }
