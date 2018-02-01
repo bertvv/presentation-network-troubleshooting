@@ -60,6 +60,7 @@ install_packages() {
 configure_webserver() {
   info "Installing test page"
   cp /vagrant/www/test.php /var/www/html
+  chcon -t user_home_t /var/www/html/test.php
   cp /vagrant/www/test.php /home/vagrant
 
   info "Setting port number"
