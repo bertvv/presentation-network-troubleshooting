@@ -44,6 +44,11 @@ Troubleshooting guide
 
 <https://bertvv.github.io/linux-network-troubleshooting/>
 
+## Terminology
+
+- *host system* = the physical machine running virtualisation software
+- *network host* = any machine with an IP address
+
 ## Case: web + db server
 
 Two VirtualBox VMs, set up with Vagrant
@@ -134,8 +139,10 @@ TCP/IP protocol stack
 ## VirtualBox networking: bridged
 
 - *Routable* from host system
+- *Internet access*
 - **Inconsistent** IP settings
-    - May not recieve IP settings from DHCP
+    - Different subnet / IP
+    - May not receive IP settings from DHCP
 
 ## Virtualbox networking: host-only
 
@@ -151,16 +158,10 @@ TCP/IP protocol stack
 
 ## Checklist: Internet Layer
 
-- Local network configuration:
-    - IP address: `ip a`
-    - Default gateway: `ip r`
-    - DNS service: `/etc/resolv.conf`
-- LAN connectivity:
-    - Ping between hosts
-    - Ping default GW/DNS
-    - Query DNS (`dig`, `nslookup`, `getent`)
+- *Local* network configuration
+- Routing within the *LAN*
 
-*Know the expected values!*
+**Know the expected values!**
 
 ## VirtualBox networking: NAT
 
@@ -183,14 +184,10 @@ The "default" host-only network:
 
 ## Checklist: Internet Layer
 
-- *Local network configuration:*
+- Checking *Local network configuration:*
     - IP address: `ip a`
     - Default gateway: `ip r`
     - DNS service: `/etc/resolv.conf`
-- LAN connectivity:
-    - Ping between hosts
-    - Ping default GW/DNS
-    - Query DNS (`dig`, `nslookup`, `getent`)
 
 ## Local configuration: `ip address`
 
@@ -208,6 +205,8 @@ The "default" host-only network:
     - No DHCP offer, "link-local" address
 - Unexpected subnet
     - Bad config (fixed IP set?)
+
+Watch the logs: `sudo journalctl -f`
 
 ## Common causes (Fixed IP)
 
@@ -229,11 +228,7 @@ The "default" host-only network:
 
 ## Checklist: Internet Layer
 
-- Local network configuration:
-    - IP address: `ip a`
-    - Default gateway: `ip r`
-    - DNS service: `/etc/resolv.conf`
-- *LAN connectivity*:
+- Checking routing within the *LAN*:
     - Ping between hosts
     - Ping default GW/DNS
     - Query DNS (`dig`, `nslookup`, `getent`)
@@ -269,7 +264,7 @@ Next step: routing beyond GW
 
 `systemctl status httpd.service`
 
-- `Active: active (running)` vs. `inactive (dead)`
+- `active (running)` vs. `inactive (dead)`
     - `systemctl start httpd`
     - Fail? See below (Application layer)
 - Start at boot: `enabled` vs. `disabled`
@@ -308,8 +303,10 @@ $ sudo firewall-cmd --reload
 
 ## Checklist: Application Layer
 
-- Check the logs `journalctl`
-- Check config file syntax
+- Check the *logs*: `journalctl`
+- Check config file *syntax*
+- Use (command line) *client* tools
+    - e.g. `curl`
 - Other checks are application dependent
     - Read the reference manuals!
 
@@ -439,9 +436,9 @@ Tip: automate this!
 
 ![Credit: @KrisBuytaert](img/reading-errorlog-files-small.jpg)
 
-## Open logs in separate terminal
-
 ## Read The F*** Error Message!
+
+## Open logs in separate terminal
 
 ## Small steps
 
@@ -453,15 +450,21 @@ Tip: automate this!
 
 ## Keep a cheat sheet/checklist
 
+E.g. <https://github.com/bertvv/cheat-sheets>
+
 ## Use a configuration management system
 
 ## Automate tests
+
+E.g. <https://github.com/HoGentTIN/elnx-sme/blob/master/test/pu004/lamp.bats>
 
 ## Never ping Google!
 
 # That's it!
 
 ## Thank you!
+
+How did I do? Tell me!
 
 [&#64;bertvanvreckem](https://twitter.com/bertvanvreckem/)
 

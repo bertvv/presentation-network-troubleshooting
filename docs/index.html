@@ -74,6 +74,12 @@
 <p><a href="https://github.com/bertvv/presentation-network-troubleshooting/" class="uri">https://github.com/bertvv/presentation-network-troubleshooting/</a></p>
 <p>Troubleshooting guide</p>
 <p><a href="https://bertvv.github.io/linux-network-troubleshooting/" class="uri">https://bertvv.github.io/linux-network-troubleshooting/</a></p>
+</section><section id="terminology" class="slide level2">
+<h2>Terminology</h2>
+<ul>
+<li><em>host system</em> = the physical machine running virtualisation software</li>
+<li><em>network host</em> = any machine with an IP address</li>
+</ul>
 </section><section id="case-web-db-server" class="slide level2">
 <h2>Case: web + db server</h2>
 <p>Two VirtualBox VMs, set up with Vagrant</p>
@@ -210,9 +216,11 @@ $ vagrant up
 <h2>VirtualBox networking: bridged</h2>
 <ul>
 <li><em>Routable</em> from host system</li>
+<li><em>Internet access</em></li>
 <li><strong>Inconsistent</strong> IP settings
 <ul>
-<li>May not recieve IP settings from DHCP</li>
+<li>Different subnet / IP</li>
+<li>May not receive IP settings from DHCP</li>
 </ul></li>
 </ul>
 </section><section id="virtualbox-networking-host-only" class="slide level2">
@@ -231,20 +239,10 @@ $ vagrant up
 <section><section id="internet-layer" class="titleslide slide level1"><h1>Internet Layer</h1></section><section id="checklist-internet-layer" class="slide level2">
 <h2>Checklist: Internet Layer</h2>
 <ul>
-<li>Local network configuration:
-<ul>
-<li>IP address: <code>ip a</code></li>
-<li>Default gateway: <code>ip r</code></li>
-<li>DNS service: <code>/etc/resolv.conf</code></li>
-</ul></li>
-<li>LAN connectivity:
-<ul>
-<li>Ping between hosts</li>
-<li>Ping default GW/DNS</li>
-<li>Query DNS (<code>dig</code>, <code>nslookup</code>, <code>getent</code>)</li>
-</ul></li>
+<li><em>Local</em> network configuration</li>
+<li>Routing within the <em>LAN</em></li>
 </ul>
-<p><em>Know the expected values!</em></p>
+<p><strong>Know the expected values!</strong></p>
 </section><section id="virtualbox-networking-nat-2" class="slide level2">
 <h2>VirtualBox networking: NAT</h2>
 <table>
@@ -301,17 +299,11 @@ $ vagrant up
 </section><section id="checklist-internet-layer-1" class="slide level2">
 <h2>Checklist: Internet Layer</h2>
 <ul>
-<li><em>Local network configuration:</em>
+<li>Checking <em>Local network configuration:</em>
 <ul>
 <li>IP address: <code>ip a</code></li>
 <li>Default gateway: <code>ip r</code></li>
 <li>DNS service: <code>/etc/resolv.conf</code></li>
-</ul></li>
-<li>LAN connectivity:
-<ul>
-<li>Ping between hosts</li>
-<li>Ping default GW/DNS</li>
-<li>Query DNS (<code>dig</code>, <code>nslookup</code>, <code>getent</code>)</li>
 </ul></li>
 </ul>
 </section><section id="local-configuration-ip-address" class="slide level2">
@@ -339,6 +331,7 @@ $ vagrant up
 <li>Bad config (fixed IP set?)</li>
 </ul></li>
 </ul>
+<p>Watch the logs: <code>sudo journalctl -f</code></p>
 </section><section id="common-causes-fixed-ip" class="slide level2">
 <h2>Common causes (Fixed IP)</h2>
 <ul>
@@ -367,13 +360,7 @@ $ vagrant up
 </section><section id="checklist-internet-layer-2" class="slide level2">
 <h2>Checklist: Internet Layer</h2>
 <ul>
-<li>Local network configuration:
-<ul>
-<li>IP address: <code>ip a</code></li>
-<li>Default gateway: <code>ip r</code></li>
-<li>DNS service: <code>/etc/resolv.conf</code></li>
-</ul></li>
-<li><em>LAN connectivity</em>:
+<li>Checking routing within the <em>LAN</em>:
 <ul>
 <li>Ping between hosts</li>
 <li>Ping default GW/DNS</li>
@@ -411,7 +398,7 @@ $ vagrant up
 <h2>Is the service running?</h2>
 <p><code>systemctl status httpd.service</code></p>
 <ul>
-<li><code>Active: active (running)</code> vs. <code>inactive (dead)</code>
+<li><code>active (running)</code> vs. <code>inactive (dead)</code>
 <ul>
 <li><code>systemctl start httpd</code></li>
 <li>Fail? See below (Application layer)</li>
@@ -460,8 +447,12 @@ $ sudo firewall-cmd --reload</code></pre>
 <section><section id="application-layer" class="titleslide slide level1"><h1>Application Layer</h1></section><section id="checklist-application-layer" class="slide level2">
 <h2>Checklist: Application Layer</h2>
 <ul>
-<li>Check the logs <code>journalctl</code></li>
-<li>Check config file syntax</li>
+<li>Check the <em>logs</em>: <code>journalctl</code></li>
+<li>Check config file <em>syntax</em></li>
+<li>Use (command line) <em>client</em> tools
+<ul>
+<li>e.g. <code>curl</code></li>
+</ul></li>
 <li>Other checks are application dependent
 <ul>
 <li>Read the reference manuals!</li>
@@ -588,10 +579,10 @@ $ semodule_package -o httpd-vboxsf.pp -m httpd-vboxsf.mod</code></pre></li>
 <figure>
 <img src="img/reading-errorlog-files-small.jpg" alt="Credit: @KrisBuytaert" /><figcaption>Credit: <span class="citation" data-cites="KrisBuytaert">@KrisBuytaert</span></figcaption>
 </figure>
-</section><section id="open-logs-in-separate-terminal" class="slide level2">
-<h2>Open logs in separate terminal</h2>
 </section><section id="read-the-f-error-message" class="slide level2">
 <h2>Read The F*** Error Message!</h2>
+</section><section id="open-logs-in-separate-terminal" class="slide level2">
+<h2>Open logs in separate terminal</h2>
 </section><section id="small-steps" class="slide level2">
 <h2>Small steps</h2>
 </section><section id="validate-the-syntax-of-config-files" class="slide level2">
@@ -602,16 +593,18 @@ $ semodule_package -o httpd-vboxsf.pp -m httpd-vboxsf.mod</code></pre></li>
 <h2>Verify each change</h2>
 </section><section id="keep-a-cheat-sheetchecklist" class="slide level2">
 <h2>Keep a cheat sheet/checklist</h2>
+<p>E.g. <a href="https://github.com/bertvv/cheat-sheets" class="uri">https://github.com/bertvv/cheat-sheets</a></p>
 </section><section id="use-a-configuration-management-system" class="slide level2">
 <h2>Use a configuration management system</h2>
 </section><section id="automate-tests" class="slide level2">
 <h2>Automate tests</h2>
+<p>E.g. <a href="https://github.com/HoGentTIN/elnx-sme/blob/master/test/pu004/lamp.bats" class="uri">https://github.com/HoGentTIN/elnx-sme/blob/master/test/pu004/lamp.bats</a></p>
 </section><section id="never-ping-google" class="slide level2">
 <h2>Never ping Google!</h2>
 </section></section>
-<section><section id="thats-it" class="titleslide slide level1"><h1>That's it!</h1></section><section id="thats-it-1" class="slide level2">
-<h2>That's it!</h2>
-<p>Thank you!</p>
+<section><section id="thats-it" class="titleslide slide level1"><h1>That's it!</h1></section><section id="thank-you" class="slide level2">
+<h2>Thank you!</h2>
+<p>How did I do? Tell me!</p>
 <p><a href="https://twitter.com/bertvanvreckem/">@bertvanvreckem</a></p>
 <p><a href="https://github.com/bertvv/" class="uri">https://github.com/bertvv/</a></p>
 <p><a href="https://bertvv.github.io/linux-network-troubleshooting/" class="uri">https://bertvv.github.io/linux-network-troubleshooting/</a></p>
