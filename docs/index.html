@@ -4,44 +4,12 @@
   <meta charset="utf-8">
   <meta name="generator" content="pandoc">
   <meta name="author" content="Bert Van Vreckem">
-  <title>Basic commands for EL7</title>
+  <title>Troubleshooting Network Services (on EL7)</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
   <link rel="stylesheet" href="reveal.js/css/reveal.css">
   <style type="text/css">code{white-space: pre;}</style>
-  <style type="text/css">
-div.sourceCode { overflow-x: auto; }
-table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
-  margin: 0; padding: 0; vertical-align: baseline; border: none; }
-table.sourceCode { width: 100%; line-height: 100%; }
-td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
-td.sourceCode { padding-left: 5px; }
-code > span.kw { color: #0000ff; } /* Keyword */
-code > span.ch { color: #008080; } /* Char */
-code > span.st { color: #008080; } /* String */
-code > span.co { color: #008000; } /* Comment */
-code > span.ot { color: #ff4000; } /* Other */
-code > span.al { color: #ff0000; } /* Alert */
-code > span.er { color: #ff0000; font-weight: bold; } /* Error */
-code > span.wa { color: #008000; font-weight: bold; } /* Warning */
-code > span.cn { } /* Constant */
-code > span.sc { color: #008080; } /* SpecialChar */
-code > span.vs { color: #008080; } /* VerbatimString */
-code > span.ss { color: #008080; } /* SpecialString */
-code > span.im { } /* Import */
-code > span.va { } /* Variable */
-code > span.cf { color: #0000ff; } /* ControlFlow */
-code > span.op { } /* Operator */
-code > span.bu { } /* BuiltIn */
-code > span.ex { } /* Extension */
-code > span.pp { color: #ff4000; } /* Preprocessor */
-code > span.do { color: #008000; } /* Documentation */
-code > span.an { color: #008000; } /* Annotation */
-code > span.cv { color: #008000; } /* CommentVar */
-code > span.at { } /* Attribute */
-code > span.in { color: #008000; } /* Information */
-  </style>
   <link rel="stylesheet" href="reveal.js/css/theme/hogent.css" id="theme">
   <!-- Printing and PDF exports -->
   <script>
@@ -60,12 +28,12 @@ code > span.in { color: #008000; } /* Information */
     <div class="slides">
 
 <section>
-  <h1 class="title">Basic commands for EL7</h1>
+  <h1 class="title">Troubleshooting Network Services (on EL7)</h1>
   <p class="author">Bert Van Vreckem</p>
-  <p class="date">CentOS Dojo 2017 Brussels, 2017-02-03</p>
+  <p class="date">CentOS Dojo 2018 Brussels, 2018-02-02</p>
 </section>
 
-<section><section id="intro" class="titleslide slide level1"><h1>Intro</h1></section><section id="whoami" class="slide level2">
+<section><section id="introduction" class="titleslide slide level1"><h1>Introduction</h1></section><section id="whoami" class="slide level2">
 <h2><code>whoami</code></h2>
 <ul>
 <li>Bert Van Vreckem</li>
@@ -78,37 +46,34 @@ code > span.in { color: #008000; } /* Information */
 <ul>
 <li>Ansible roles</li>
 <li>Scripts</li>
-<li>...</li>
+<li>Learning resources</li>
 </ul></li>
 </ul>
-</section><section id="this-talk-is-for-you-if-youre" class="slide level2">
-<h2>This talk is for you if you're</h2>
+</section><section id="this-talk-is-for-you-if" class="slide level2">
+<h2>This talk is for you if</h2>
 <ul>
-<li>(Relatively) new to Linux/CentOS</li>
-<li>Still struggling with the recent changes EL7</li>
+<li>Linux/CentOS novice</li>
+<li>Unfamiliar with EL7/systemd</li>
+<li>Struggle with network services</li>
 </ul>
 </section><section id="agenda" class="slide level2">
 <h2>Agenda</h2>
 <ul>
-<li>Network settings (<code>ip</code>)</li>
-<li>Managing services (<code>systemctl</code>)</li>
-<li>Show system logs (<code>journalctl</code>)</li>
-<li>Show sockets (<code>ss</code>)</li>
-<li>Firewall configuration (<code>firewalld</code>)</li>
-<li>Troubleshooting (including <em>SELinux</em>)</li>
+<li>Bottom-up approach</li>
+<li>Network access (Link) layer</li>
+<li>Internet layer</li>
+<li>Transport</li>
+<li>Application Layer</li>
+<li>SELinux</li>
 </ul>
+<p><a href="https://github.com/bertvv/presentation-network-troubleshooting/" class="uri">https://github.com/bertvv/presentation-network-troubleshooting/</a></p>
 </section><section id="remarks" class="slide level2">
 <h2>Remarks</h2>
-<ul>
-<li>&quot;Old&quot; commands are (mostly) not mentioned
-<ul>
-<li><a href="https://fedoraproject.org/wiki/SysVinit_to_Systemd_Cheatsheet" class="uri">https://fedoraproject.org/wiki/SysVinit_to_Systemd_Cheatsheet</a></li>
-</ul></li>
-<li>I'm neutral w.r.t. systemd, etc. I won't discuss &quot;politics&quot; here!</li>
-<li><strong>Interrupt me if you have remarks/questions!</strong></li>
-</ul>
+<p><strong>Interrupt me if you have remarks/questions!</strong></p>
 <p>Presentation, example code:</p>
-<p><a href="https://github.com/bertvv/presentation-el7-basics/" class="uri">https://github.com/bertvv/presentation-el7-basics/</a></p>
+<p><a href="https://github.com/bertvv/presentation-network-troubleshooting/" class="uri">https://github.com/bertvv/presentation-network-troubleshooting/</a></p>
+<p>Troubleshooting guide</p>
+<p><a href="https://bertvv.github.io/linux-network-troubleshooting/" class="uri">https://bertvv.github.io/linux-network-troubleshooting/</a></p>
 </section><section id="case-web-db-server" class="slide level2">
 <h2>Case: web + db server</h2>
 <p>Two VirtualBox VMs, set up with Vagrant</p>
@@ -137,10 +102,16 @@ code > span.in { color: #008000; } /* Information */
 <li>On <code>web</code>, a PHP app runs a query on the <code>db</code></li>
 <li><code>db</code> is set up correctly, <code>web</code> is not</li>
 </ul>
-</section><section class="slide level2">
-
-<pre><code>$ git clone https://github.com/bertvv/presentation-el7-basics.git
-$ cd presentation-el7-basics
+</section><section id="objective" class="slide level2">
+<h2>Objective</h2>
+<figure>
+<img src="img/result.png" alt="The PHP application" /><figcaption>The PHP application</figcaption>
+</figure>
+</section><section id="running-the-demo-environment" class="slide level2">
+<h2>Running the demo environment</h2>
+<pre class="console"><code>$ git clone https://github.com/bertvv/presentation-network-troubleshooting.git
+[...]
+$ cd presentation-network-troubleshooting/
 $ vagrant status
 Current machine states:
 
@@ -150,471 +121,63 @@ web                       not created (virtualbox)
 This environment represents multiple VMs. The VMs are all listed
 above with their current state. For more information about a specific
 VM, run `vagrant status NAME`.
-$ vagrant up</code></pre>
-</section></section>
-<section><section id="network-settings" class="titleslide slide level1"><h1>Network settings</h1></section><section id="ip" class="slide level2">
-<h2><code>ip</code></h2>
+$ vagrant up
+[...]</code></pre>
+</section><section id="test-the-database-server" class="slide level2">
+<h2>Test the database server</h2>
+<pre class="shell"><code>$ ./query_db.sh 
++ mysql --host=192.168.56.73 --user=demo_user \
++   --password=ArfovWap_OwkUfeaf4 demo \
++   &#39;--execute=SELECT * FROM demo_tbl;&#39;
++----+-------------------+
+| id | name              |
++----+-------------------+
+|  1 | Tuxedo T. Penguin |
+|  2 | Johnny Tables     |
++----+-------------------+
++ set +x</code></pre>
+</section><section id="use-a-bottom-up-approach" class="slide level2">
+<h2>Use a bottom-up approach</h2>
+<p>TCP/IP protocol stack</p>
 <table>
 <thead>
 <tr class="header">
-<th style="text-align: left;">Task</th>
-<th style="text-align: left;">Command</th>
+<th style="text-align: left;">Layer</th>
+<th style="text-align: left;">Protocols</th>
+<th style="text-align: left;">Keywords</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">NIC status</td>
-<td style="text-align: left;"><code>ip link</code></td>
+<td style="text-align: left;">Application</td>
+<td style="text-align: left;">HTTP, DNS, SMB, FTP, ...</td>
+<td style="text-align: left;"></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">IP addresses</td>
-<td style="text-align: left;"><code>ip address</code>, <code>ip a</code></td>
+<td style="text-align: left;">Transport</td>
+<td style="text-align: left;">TCP, UDP</td>
+<td style="text-align: left;">sockets, port numbers</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">for specific device</td>
-<td style="text-align: left;"><code>ip a show dev em1</code></td>
+<td style="text-align: left;">Internet</td>
+<td style="text-align: left;">IP, ICMP</td>
+<td style="text-align: left;">routing, IP address</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Routing info</td>
-<td style="text-align: left;"><code>ip route</code>, <code>ip r</code></td>
-</tr>
-</tbody>
-</table>
-</section><section id="example-virtualbox-vm" class="slide level2">
-<h2>Example (VirtualBox VM)</h2>
-<pre><code>$ ip l
-1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-2: enp0s3: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP mode DEFAULT qlen 1000
-    link/ether 08:00:27:8e:91:e0 brd ff:ff:ff:ff:ff:ff
-3: enp0s8: &lt;BROADCAST,MULTICAST&gt; mtu 1500 qdisc pfifo_fast state DOWN mode DEFAULT qlen 1000
-    link/ether 08:00:27:75:a8:2c brd ff:ff:ff:ff:ff:ff</code></pre>
-</section><section class="slide level2">
-
-<pre><code>$ ip a
-1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN 
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-    inet 127.0.0.1/8 scope host lo
-       valid_lft forever preferred_lft forever
-    inet6 ::1/128 scope host 
-       valid_lft forever preferred_lft forever
-2: enp0s3: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP qlen 1000
-    link/ether 08:00:27:8e:91:e0 brd ff:ff:ff:ff:ff:ff
-    inet 10.0.2.15/24 brd 10.0.2.255 scope global dynamic enp0s3
-       valid_lft 86349sec preferred_lft 86349sec
-    inet6 fe80::a00:27ff:fe8e:91e0/64 scope link 
-       valid_lft forever preferred_lft forever
-3: enp0s8: &lt;BROADCAST,MULTICAST&gt; mtu 1500 qdisc pfifo_fast state DOWN qlen 1000
-    link/ether 08:00:27:75:a8:2c brd ff:ff:ff:ff:ff:ff</code></pre>
-<p>(<code>enp0s8</code> has no IP, caused by Vagrant <a href="https://github.com/mitchellh/vagrant/issues/8096">bug #8096</a>)</p>
-</section><section id="the-new-interface-names" class="slide level2">
-<h2>The new interface names</h2>
-<p><a href="https://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames/">Predictable Network Interface Names</a>, since Systemd v197</p>
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Example</th>
-<th style="text-align: left;">Type</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;"><code>em1</code></td>
-<td style="text-align: left;">EMbedded #</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><code>eno1</code></td>
-<td style="text-align: left;">EtherNet Onboard adapter #</td>
+<td style="text-align: left;">Network access</td>
+<td style="text-align: left;">Ethernet</td>
+<td style="text-align: left;">switch, MAC address</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;"><code>p1p1</code></td>
-<td style="text-align: left;">PCI slot # Port #</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><code>enp0s3</code></td>
-<td style="text-align: left;">Ethernet Network Peripheral # serial #</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;"><code>wlp3s0b1</code></td>
-<td style="text-align: left;">Wireless PCI bus # slot #</td>
-</tr>
-</tbody>
-</table>
-<p>Also, see (Hayden, 2015)</p>
-</section><section id="configuration" class="slide level2">
-<h2>Configuration</h2>
-<ul>
-<li><code>systemd-networkd</code> still reads the traditional <code>/etc/sysconfig/network-scripts/ifcfg-*</code></li>
-<li>After change, restart <code>network.service</code> (see below)</li>
-</ul>
-</section><section class="slide level2">
-
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="co"># /etc/sysconfig/network-scripts/ifcfg-enp0s3</span>
-<span class="va">DEVICE=</span>enp0s3
-<span class="va">ONBOOT=</span>yes
-<span class="va">BOOTPROTO=</span>dhcp</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="co"># /etc/sysconfig/network-scripts/ifcfg-enp0s8</span>
-<span class="va">DEVICE=</span>enp0s8
-<span class="va">ONBOOT=</span>yes
-<span class="va">BOOTPROTO=</span>none
-<span class="va">IPADDR=</span>192.168.56.72
-<span class="va">NETMASK=</span>255.255.255.0</code></pre></div>
-</section></section>
-<section><section id="managing-services-with-systemctl" class="titleslide slide level1"><h1>Managing services with <code>systemctl</code></h1></section><section id="systemctl" class="slide level2">
-<h2><code>systemctl</code></h2>
-<p><code>systemctl COMMAND [OPTION]... NAME</code></p>
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Task</th>
-<th style="text-align: left;">Command</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">Status service</td>
-<td style="text-align: left;"><code>systemctl status NAME</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Start service</td>
-<td style="text-align: left;"><code>systemctl start NAME</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Stop service</td>
-<td style="text-align: left;"><code>systemctl stop NAME</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Restart service</td>
-<td style="text-align: left;"><code>systemctl restart NAME</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Start at boot</td>
-<td style="text-align: left;"><code>systemctl enable NAME</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Don't start at boot</td>
-<td style="text-align: left;"><code>systemctl disable NAME</code></td>
-</tr>
-</tbody>
-</table>
-<p>Usually, <em>root permissions</em> required (<code>sudo</code>)</p>
-</section><section class="slide level2">
-
-<p>Default command: <code>list-units</code></p>
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Task</th>
-<th style="text-align: left;">Command</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">List all services</td>
-<td style="text-align: left;"><code>systemctl --type=service</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Running services</td>
-<td style="text-align: left;"><code>systemctl --state=running</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Failed services</td>
-<td style="text-align: left;"><code>systemctl --failed</code></td>
+<td style="text-align: left;">Physical</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">cables</td>
 </tr>
 </tbody>
 </table>
 </section></section>
-<section><section id="system-logs-with-systemd-journald" class="titleslide slide level1"><h1>System logs with <code>systemd-journald</code></h1></section><section id="journalctl" class="slide level2">
-<h2><code>journalctl</code></h2>
-<ul>
-<li><code>journalctl</code> requires <em>root permissions</em>
-<ul>
-<li>Or, add user to group <code>adm</code> or <code>systemd-journal</code></li>
-</ul></li>
-<li>Some &quot;traditional&quot; text-based log files still exist (for now?):
-<ul>
-<li><code>/var/log/messages</code> (gone in Fedora!)</li>
-<li><code>/var/log/httpd/access_log</code> and <code>error_log</code></li>
-<li>...</li>
-</ul></li>
-</ul>
-</section><section id="options" class="slide level2">
-<h2>Options</h2>
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Action</th>
-<th style="text-align: left;">Command</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">Show latest log and wait for changes</td>
-<td style="text-align: left;"><code>journalctl -f</code>, <code>--follow</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Show only log of SERVICE</td>
-<td style="text-align: left;"><code>journalctl -u SERVICE</code>, <code>--unit=SERVICE</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Match executable, e.g. <code>dhclient</code></td>
-<td style="text-align: left;"><code>journalctl /usr/sbin/dhclient</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Match device node, e.g. <code>/dev/sda</code></td>
-<td style="text-align: left;"><code>journalctl /dev/sda</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Show auditd logs</td>
-<td style="text-align: left;"><code>journalctl _TRANSPORT=audit</code></td>
-</tr>
-</tbody>
-</table>
-</section><section class="slide level2">
-
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Action</th>
-<th style="text-align: left;">Command</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">Show log since last boot</td>
-<td style="text-align: left;"><code>journalctl -b</code>, <code>--boot</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kernel messages (like <code>dmesg</code>)</td>
-<td style="text-align: left;"><code>journalctl -k</code>, <code>--dmesg</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Reverse output (newest first)</td>
-<td style="text-align: left;"><code>journalctl -r</code>, <code>--reverse</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Show only errors and worse</td>
-<td style="text-align: left;"><code>journalctl -p err</code>, <code>--priority=err</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Since yesterday</td>
-<td style="text-align: left;"><code>journalctl --since=yesterday</code></td>
-</tr>
-</tbody>
-</table>
-</section><section class="slide level2">
-
-<p>Filter on time (example):</p>
-<pre><code>journalctl --since=2014-06-00 \
-           --until=&quot;2014-06-07 12:00:00&quot;</code></pre>
-<p>Much more options in the man-page!</p>
-</section></section>
-<section><section id="show-open-sockets" class="titleslide slide level1"><h1>Show open sockets</h1></section><section id="show-sockets-ss" class="slide level2">
-<h2>Show sockets: <code>ss</code></h2>
-<ul>
-<li><code>netstat</code> is obsolete, replaced by <code>ss</code>
-<ul>
-<li><code>netstat</code> uses <code>/proc/net/tcp</code></li>
-<li><code>ss</code> directly queries the kernel</li>
-</ul></li>
-<li>Similar options</li>
-</ul>
-</section><section id="options-1" class="slide level2">
-<h2>Options</h2>
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Task</th>
-<th style="text-align: left;">Command</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">Show server sockets</td>
-<td style="text-align: left;"><code>ss -l</code>, <code>--listening</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Show TCP sockets</td>
-<td style="text-align: left;"><code>ss -t</code>, <code>--tcp</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Show UDP sockets</td>
-<td style="text-align: left;"><code>ss -u</code>, <code>--udp</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Show port numbers(*)</td>
-<td style="text-align: left;"><code>ss -n</code>, <code>--numeric</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Show process(†)</td>
-<td style="text-align: left;"><code>ss -p</code>, <code>--processes</code></td>
-</tr>
-</tbody>
-</table>
-<p>(*) instead of service names from <code>/etc/services</code></p>
-<p>(†) <em>root permissions</em> required</p>
-</section><section id="example" class="slide level2">
-<h2>Example</h2>
-<pre><code>$ sudo ss -tlnp
-State   Recv-Q Send-Q Local Address:Port Peer Address:Port
-LISTEN  0      128                *:22              *:*    users:((&quot;sshd&quot;,pid=1290,fd=3))
-LISTEN  0      100        127.0.0.1:25              *:*    users:((&quot;master&quot;,pid=1685,fd=13))
-LISTEN  0      128               :::80             :::*    users:((&quot;httpd&quot;,pid=4403,fd=4),(&quot;httpd&quot;,pid=4402,fd=4),(&quot;httpd&quot;,pid=4401,fd=4),(&quot;httpd&quot;,pid=4400,fd=4),(&quot;httpd&quot;,pid=4399,fd=4),(&quot;httpd&quot;,pid=4397,fd=4))
-LISTEN  0      128               :::22             :::*    users:((&quot;sshd&quot;,pid=1290,fd=4))
-LISTEN  0      100              ::1:25             :::*    users:((&quot;master&quot;,pid=1685,fd=14))
-LISTEN  0      128               :::443            :::*    users:((&quot;httpd&quot;,pid=4403,fd=6),(&quot;httpd&quot;,pid=4402,fd=6),(&quot;httpd&quot;,pid=4401,fd=6),(&quot;httpd&quot;,pid=4400,fd=6),(&quot;httpd&quot;,pid=4399,fd=6),(&quot;httpd&quot;,pid=4397,fd=6))</code></pre>
-</section></section>
-<section><section id="firewall-configuration-with-firewalld" class="titleslide slide level1"><h1>Firewall configuration with <code>firewalld</code></h1></section><section id="static-vs-dynamic-firewall-model" class="slide level2">
-<h2>Static vs dynamic firewall model</h2>
-<ul>
-<li><em>ip(6)tables</em> service: static
-<ul>
-<li>change =&gt; rule flush + daemon restart</li>
-<li>broke stateful firewalling, established connections</li>
-</ul></li>
-<li><em>firewalld</em>: dynamic
-<ul>
-<li>changes applied directly, no lost connections</li>
-</ul></li>
-<li>Both use iptables/netfilter in the background!</li>
-<li>Tools that depend on &quot;old&quot; model may cause problems
-<ul>
-<li>e.g. <code>docker-compose</code> (Issue <a href="https://github.com/docker/compose/issues/2841">#2841</a>)</li>
-</ul></li>
-</ul>
-</section><section id="zones" class="slide level2">
-<h2>Zones</h2>
-<ul>
-<li>Zone = list of rules to be applied in a specific situation
-<ul>
-<li>e.g. public (default), home, work, ...</li>
-</ul></li>
-<li>NICs are assigned to zones</li>
-<li>For a server, <code>public</code> zone is probably sufficient</li>
-</ul>
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Task</th>
-<th style="text-align: left;">Command</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">List all zones</td>
-<td style="text-align: left;"><code>firewall-cmd --get-zones</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Current active zone</td>
-<td style="text-align: left;"><code>firewall-cmd --get-active-zones</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Add interface to active zone</td>
-<td style="text-align: left;"><code>firewall-cmd --add-interface=IFACE</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Show current rules</td>
-<td style="text-align: left;"><code>firewall-cmd --list-all</code></td>
-</tr>
-</tbody>
-</table>
-<p><code>firewall-cmd</code> requires <em>root permissions</em></p>
-</section><section id="configuring-firewall-rules" class="slide level2">
-<h2>Configuring firewall rules</h2>
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Task</th>
-<th style="text-align: left;">Command</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">Allow predefined service</td>
-<td style="text-align: left;"><code>firewall-cmd --add-service=http</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">List predefined services</td>
-<td style="text-align: left;"><code>firewall-cmd --get-services</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Allow specific port</td>
-<td style="text-align: left;"><code>firewall-cmd --add-port=8080/tcp</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Reload rules</td>
-<td style="text-align: left;"><code>firewall-cmd --reload</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Block all traffic</td>
-<td style="text-align: left;"><code>firewall-cmd --panic-on</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Turn panic mode off</td>
-<td style="text-align: left;"><code>firewall-cmd --panic-off</code></td>
-</tr>
-</tbody>
-</table>
-</section><section id="persistent-changes" class="slide level2">
-<h2>Persistent changes</h2>
-<ul>
-<li><code>--permanent</code> option =&gt; not applied immediately!</li>
-<li>Two methods:
-<ol type="1">
-<li>Execute command once without, once with <code>--permanent</code></li>
-<li>Execute command with <code>--permanent</code>, reload rules</li>
-</ol></li>
-<li>First method is faster</li>
-</ul>
-<pre class="shellsession"><code>sudo firewall-cmd --add-service=http
-sudo firewall-cmd --add-service=http --permanent
-sudo firewall-cmd --add-service=https
-sudo firewall-cmd --add-service=https --permanent</code></pre>
-</section><section id="gotcha" class="slide level2">
-<h2>Gotcha</h2>
-<p>Zone assignments may be overwritten at boot time (CentOS <a href="https://bugs.centos.org/view.php?id=7407">issue #7407</a>)</p>
-<p>Reproduce:</p>
-<ol type="1">
-<li>Remove interface from public zone</li>
-</ol>
-<pre><code>$ sudo firewall-cmd --get-active-zones
-public
-  interfaces: enp0s3 enp0s8
-$ sudo firewall-cmd --remove-interface=enp0s3
-success
-[vagrant@db ~]$ sudo firewall-cmd --get-active-zones
-public
-  interfaces: enp0s8</code></pre>
-</section><section class="slide level2">
-
-<ol start="2" type="1">
-<li>Reboot, then:</li>
-</ol>
-<pre><code>$ sudo firewall-cmd --get-active-zones
-public
-  interfaces: enp0s3</code></pre>
-<ul>
-<li>Cause: <code>/etc/sysconfig/network-scripts/ifup-eth</code></li>
-<li>Workaround: remove <code>firewall-cmd</code> invocation</li>
-</ul>
-</section></section>
-<section><section id="troubleshooting" class="titleslide slide level1"><h1>Troubleshooting</h1></section><section id="general-guidelines" class="slide level2">
-<h2>General guidelines</h2>
-<ul>
-<li>Follow TCP/IP (or OSI) stack</li>
-<li>Bottom-up:
-<ol type="1">
-<li>Link layer</li>
-<li>Internet layer</li>
-<li>Transport layer</li>
-<li>Application layer</li>
-</ol></li>
-<li>Know your network, i.e. expected values</li>
-<li>Be thorough, check assumptions</li>
-</ul>
-<p>Goal: see the web page at <a href="http://192.168.56.72/test.php" class="uri">http://192.168.56.72/test.php</a></p>
-</section><section id="checklist-link-layer" class="slide level2">
-<h2>Checklist: Link layer</h2>
+<section><section id="network-access-layer" class="titleslide slide level1"><h1>Network Access Layer</h1></section><section id="network-access-layer-1" class="slide level2">
+<h2>Network Access Layer</h2>
 <ul>
 <li>bare metal:
 <ul>
@@ -623,14 +186,52 @@ public
 </ul></li>
 <li>VM (e.g. VirtualBox):
 <ul>
-<li>check Adapter type &amp; settings</li>
+<li>check virtual network adapter type &amp; settings</li>
 </ul></li>
 <li><code>ip link</code></li>
 </ul>
-</section><section id="checklist-internet-layer" class="slide level2">
-<h2>Checklist: Internet layer</h2>
+</section><section id="virtualbox-networking-nat" class="slide level2">
+<h2>VirtualBox networking: NAT</h2>
+<figure>
+<img src="img/VirtualBox-networking-NAT.png" alt="VirtualBox NAT Adapter" /><figcaption>VirtualBox NAT Adapter</figcaption>
+</figure>
+</section><section id="virtualbox-networking-nat-1" class="slide level2">
+<h2>VirtualBox networking: NAT</h2>
 <ul>
-<li>Local settings:
+<li>Reliable <em>Internet access</em></li>
+<li><strong>Not routable</strong> from host system</li>
+</ul>
+</section><section id="virtualbox-networking-bridged" class="slide level2">
+<h2>VirtualBox networking: bridged</h2>
+<figure>
+<img src="img/VirtualBox-networking-bridged.png" alt="VirtualBox Bridged Adapter" /><figcaption>VirtualBox Bridged Adapter</figcaption>
+</figure>
+</section><section id="virtualbox-networking-bridged-1" class="slide level2">
+<h2>VirtualBox networking: bridged</h2>
+<ul>
+<li><em>Routable</em> from host system</li>
+<li><strong>Inconsistent</strong> IP settings
+<ul>
+<li>May not recieve IP settings from DHCP</li>
+</ul></li>
+</ul>
+</section><section id="virtualbox-networking-host-only" class="slide level2">
+<h2>Virtualbox networking: host-only</h2>
+<figure>
+<img src="img/VirtualBox-networking-HO.png" alt="VirtualBox Host-only Adapter" /><figcaption>VirtualBox Host-only Adapter</figcaption>
+</figure>
+</section><section id="virtualbox-networking-host-only-1" class="slide level2">
+<h2>VirtualBox networking: host-only</h2>
+<ul>
+<li><em>Routable</em> from host system</li>
+<li><em>Consistent</em> IP settings</li>
+<li><strong>No Internet</strong> access</li>
+</ul>
+</section></section>
+<section><section id="internet-layer" class="titleslide slide level1"><h1>Internet Layer</h1></section><section id="checklist-internet-layer" class="slide level2">
+<h2>Checklist: Internet Layer</h2>
+<ul>
+<li>Local network configuration:
 <ul>
 <li>IP address: <code>ip a</code></li>
 <li>Default gateway: <code>ip r</code></li>
@@ -643,18 +244,260 @@ public
 <li>Query DNS (<code>dig</code>, <code>nslookup</code>, <code>getent</code>)</li>
 </ul></li>
 </ul>
-</section><section id="checklist-transport-layer" class="slide level2">
-<h2>Checklist: Transport layer</h2>
+<p><em>Know the expected values!</em></p>
+</section><section id="virtualbox-networking-nat-2" class="slide level2">
+<h2>VirtualBox networking: NAT</h2>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Host</th>
+<th style="text-align: left;">IP</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">VM</td>
+<td style="text-align: left;">10.0.2.15/24</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Gateway</td>
+<td style="text-align: left;">10.0.2.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">DNS</td>
+<td style="text-align: left;">10.0.2.3</td>
+</tr>
+</tbody>
+</table>
+</section><section id="virtualbox-networking-host-only-2" class="slide level2">
+<h2>VirtualBox networking: host-only</h2>
+<p>The &quot;default&quot; host-only network:</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: left;">IP</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Host system</td>
+<td style="text-align: left;">192.168.56.1/24</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Virtual DHCP</td>
+<td style="text-align: left;">192.168.56.100</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Range from</td>
+<td style="text-align: left;">192.168.56.101</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Range to</td>
+<td style="text-align: left;">192.168.56.254</td>
+</tr>
+</tbody>
+</table>
+</section><section id="checklist-internet-layer-1" class="slide level2">
+<h2>Checklist: Internet Layer</h2>
+<ul>
+<li><em>Local network configuration:</em>
+<ul>
+<li>IP address: <code>ip a</code></li>
+<li>Default gateway: <code>ip r</code></li>
+<li>DNS service: <code>/etc/resolv.conf</code></li>
+</ul></li>
+<li>LAN connectivity:
+<ul>
+<li>Ping between hosts</li>
+<li>Ping default GW/DNS</li>
+<li>Query DNS (<code>dig</code>, <code>nslookup</code>, <code>getent</code>)</li>
+</ul></li>
+</ul>
+</section><section id="local-configuration-ip-address" class="slide level2">
+<h2>Local configuration: <code>ip address</code></h2>
+<ul>
+<li>IP address?</li>
+<li>In correct subnet?</li>
+<li>DHCP or fixed IP?</li>
+<li>Check configuration: <code>/etc/sysconfig/network-scripts/ifcfg-*</code></li>
+</ul>
+</section><section id="common-causes-dhcp" class="slide level2">
+<h2>Common causes (DHCP)</h2>
+<ul>
+<li>No IP
+<ul>
+<li>DHCP unreachable</li>
+<li>DHCP won't give an IP</li>
+</ul></li>
+<li>169.254.x.x
+<ul>
+<li>No DHCP offer, &quot;link-local&quot; address</li>
+</ul></li>
+<li>Unexpected subnet
+<ul>
+<li>Bad config (fixed IP set?)</li>
+</ul></li>
+</ul>
+</section><section id="common-causes-fixed-ip" class="slide level2">
+<h2>Common causes (Fixed IP)</h2>
+<ul>
+<li>Unexpected subnet
+<ul>
+<li>Check config</li>
+</ul></li>
+<li>Correct IP, &quot;network unreachable&quot;
+<ul>
+<li>Check network mask</li>
+</ul></li>
+</ul>
+</section><section id="local-configuration-ip-route" class="slide level2">
+<h2>Local configuration: <code>ip route</code></h2>
+<ul>
+<li>Default GW present?</li>
+<li>In correct subnet?</li>
+<li>Check network configuration</li>
+</ul>
+</section><section id="dns-server-etcresolv.conf" class="slide level2">
+<h2>DNS server: <code>/etc/resolv.conf</code></h2>
+<ul>
+<li><code>nameserver</code> option present?</li>
+<li>Expected IP?</li>
+</ul>
+</section><section id="checklist-internet-layer-2" class="slide level2">
+<h2>Checklist: Internet Layer</h2>
+<ul>
+<li>Local network configuration:
+<ul>
+<li>IP address: <code>ip a</code></li>
+<li>Default gateway: <code>ip r</code></li>
+<li>DNS service: <code>/etc/resolv.conf</code></li>
+</ul></li>
+<li><em>LAN connectivity</em>:
+<ul>
+<li>Ping between hosts</li>
+<li>Ping default GW/DNS</li>
+<li>Query DNS (<code>dig</code>, <code>nslookup</code>, <code>getent</code>)</li>
+</ul></li>
+</ul>
+</section><section id="lan-connectivity-ping" class="slide level2">
+<h2>LAN connectivity: <code>ping</code></h2>
+<ul>
+<li>host -&gt; VM: <code>ping 192.168.56.72</code></li>
+<li>VM -&gt; host: <code>ping 192.168.56.1</code></li>
+<li>VM -&gt; GW: <code>ping 10.0.2.2</code></li>
+<li>VM -&gt; DNS: <code>ping 10.0.2.3</code></li>
+</ul>
+<p>Remark: some routers <strong>block</strong> ICMP!</p>
+</section><section id="lan-connectivity-dns" class="slide level2">
+<h2>LAN connectivity: DNS</h2>
+<ul>
+<li><code>dig icanhazip.com</code></li>
+<li><code>nslookup icanhazip.com</code></li>
+<li><code>getent ahosts icanhazip.com</code></li>
+</ul>
+</section><section id="lan-connectivity" class="slide level2">
+<h2>LAN connectivity</h2>
+<p>Next step: routing beyond GW</p>
+</section></section>
+<section><section id="transport-layer" class="titleslide slide level1"><h1>Transport Layer</h1></section><section id="checklist-transport-layer" class="slide level2">
+<h2>Checklist: Transport Layer</h2>
 <ul>
 <li>Service running? <code>sudo systemctl status SERVICE</code></li>
-<li>Correct port/interface? <code>sudo ss -tulpn</code></li>
-<li>Firewall settings? <code>sudo firewall-cmd --list-all</code></li>
+<li>Correct port/inteface? <code>sudo ss -tulpn</code></li>
+<li>Firewall settings: <code>sudo firewall-cmd --list-all</code></li>
 </ul>
-</section><section id="checklist-application-layer" class="slide level2">
-<h2>Checklist: Application layer</h2>
+</section><section id="is-the-service-running" class="slide level2">
+<h2>Is the service running?</h2>
+<p><code>systemctl status httpd.service</code></p>
 <ul>
-<li>Check the logs <code>sudo journalctl -f -u SERVICE</code></li>
+<li><code>Active: active (running)</code> vs. <code>inactive (dead)</code>
+<ul>
+<li><code>systemctl start httpd</code></li>
+<li>Fail? See below (Application layer)</li>
+</ul></li>
+<li>Start at boot: <code>enabled</code> vs. <code>disabled</code>
+<ul>
+<li><code>systemctl enable httpd</code></li>
+</ul></li>
+</ul>
+</section><section id="correct-portsinterfaces" class="slide level2">
+<h2>Correct ports/interfaces?</h2>
+<ul>
+<li>Use <code>ss</code> (not <code>netstat</code>)
+<ul>
+<li>TCP service: <code>sudo ss -tlnp</code></li>
+<li>UDP service: <code>sudo ss -ulnp</code></li>
+</ul></li>
+<li>Correct port number?
+<ul>
+<li>See <code>/etc/services</code></li>
+</ul></li>
+<li>Correct interface?
+<ul>
+<li>Only loopback?</li>
+</ul></li>
+</ul>
+</section><section id="firewall-settings" class="slide level2">
+<h2>Firewall settings</h2>
+<p><code>sudo firewall-cmd --list-all</code></p>
+<ul>
+<li>Is the service or port listed?</li>
+<li>Use <code>--add-service</code> if possible
+<ul>
+<li>Supported: <code>--get-services</code></li>
+</ul></li>
+<li>Don't use both <code>--add-service</code> and <code>--add-port</code></li>
+<li>Add <code>--permanent</code></li>
+<li><code>--reload</code> firewall rules</li>
+</ul>
+</section><section class="slide level2">
+
+<pre class="console"><code>$ sudo firewall-cmd --add-service=http --permanent
+$ sudo firewall-cmd --add-service=https --permanent
+$ sudo firewall-cmd --reload</code></pre>
+</section></section>
+<section><section id="application-layer" class="titleslide slide level1"><h1>Application Layer</h1></section><section id="checklist-application-layer" class="slide level2">
+<h2>Checklist: Application Layer</h2>
+<ul>
+<li>Check the logs <code>journalctl</code></li>
 <li>Check config file syntax</li>
+<li>Other checks are application dependent
+<ul>
+<li>Read the reference manuals!</li>
+</ul></li>
+</ul>
+</section><section id="check-the-log-files" class="slide level2">
+<h2>Check the log files</h2>
+<ul>
+<li>Either <code>journalctl</code>: <code>journalctl -f -u httpd.service</code></li>
+<li>Or <code>/var/log/</code>:
+<ul>
+<li><code>tail -f /var/log/httpd/error_log</code></li>
+</ul></li>
+</ul>
+</section><section id="check-config-file-syntax" class="slide level2">
+<h2>Check config file syntax</h2>
+<ul>
+<li>Application dependent, for Apache: <code>apachectl configtest</code></li>
+</ul>
+</section><section id="read-the-fine-manual" class="slide level2">
+<h2>Read the fine manual!</h2>
+<ul>
+<li><a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/">RedHat Manuals</a>:
+<ul>
+<li>System Administrator's Guide</li>
+<li>Networking guide</li>
+<li>SELinux guide</li>
+</ul></li>
+<li>Reference manuals, e.g.:
+<ul>
+<li><a href="https://httpd.apache.org/docs/2.4/configuring.html" class="uri">https://httpd.apache.org/docs/2.4/configuring.html</a></li>
+</ul></li>
+<li>Man pages
+<ul>
+<li>smb.conf(5), dhcpd.conf(5), named.conf(5), ...</li>
+</ul></li>
 </ul>
 </section></section>
 <section><section id="selinux-troubleshooting" class="titleslide slide level1"><h1>SELinux troubleshooting</h1></section><section id="selinux" class="slide level2">
@@ -664,98 +507,39 @@ public
 <li>Settings:
 <ul>
 <li>Booleans: <code>getsebool</code>, <code>setsebool</code></li>
-<li>Contexts, labels: <code>ls -Z</code>, <code>chcon</code></li>
+<li>Contexts, labels: <code>ls -Z</code>, <code>chcon</code>, <code>restorecon</code></li>
 <li>Policy modules: <code>sepolicy</code></li>
 </ul></li>
 </ul>
-</section><section id="enabling-selinux" class="slide level2">
-<h2>Enabling SELinux</h2>
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Task</th>
-<th style="text-align: left;">Command</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">Get current status</td>
-<td style="text-align: left;"><code>sestatus</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Get mode</td>
-<td style="text-align: left;"><code>getenforce</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Enable SELinux</td>
-<td style="text-align: left;"><code>setenforce Enforcing</code></td>
-</tr>
-</tbody>
-</table>
-<p>Enable SELinux permanently: <code>/etc/sysconfig/selinux</code></p>
-</section><section id="boolean-settings" class="slide level2">
-<h2>Boolean settings</h2>
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Task</th>
-<th style="text-align: left;">Command</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">List all boolean values</td>
-<td style="text-align: left;"><code>getsebool -a</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">List http-related values</td>
-<td style="text-align: left;"><code>getsebool -a | grep httpd</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Show specific value</td>
-<td style="text-align: left;"><code>getsebool VAR</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Set value</td>
-<td style="text-align: left;"><code>setsebool VAR on</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Persistent</td>
-<td style="text-align: left;"><code>setsebool -P VAR on</code></td>
-</tr>
-</tbody>
-</table>
-</section><section id="file-context" class="slide level2">
-<h2>File context</h2>
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Task</th>
-<th style="text-align: left;">Command</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">Show SELinux context</td>
-<td style="text-align: left;"><code>ls -Z</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Reset context</td>
-<td style="text-align: left;"><code>restorecon PATH</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Reset context recursively</td>
-<td style="text-align: left;"><code>restorecon -R PATH</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Change context recursively</td>
-<td style="text-align: left;"><code>chcon -t CONTEXT -R PATH</code></td>
-</tr>
-</tbody>
-</table>
-<p>Example of adding a context rule:</p>
-<pre><code>$ sudo semanage fcontext -a -t httpd_sys_content_t &quot;/srv/www(/.*)?&quot;
-$ cat /etc/selinux/targeted/contexts/files/file_contexts.local</code></pre>
+</section><section id="do-not-disable-selinux" class="slide level2">
+<h2>Do not disable SELinux</h2>
+<p><a href="https://stopdisablingselinux.com/" class="uri">https://stopdisablingselinux.com/</a></p>
+</section><section id="check-file-context" class="slide level2">
+<h2>Check file context</h2>
+<ul>
+<li>Is the file context as expected?
+<ul>
+<li><code>ls -Z /var/www/html</code></li>
+</ul></li>
+<li>Set file context to default value
+<ul>
+<li><code>sudo restorecon -R /var/www/</code></li>
+</ul></li>
+<li>Set file context to specified value
+<ul>
+<li><code>sudo chcon -t httpd_sys_content_t test.php</code></li>
+</ul></li>
+</ul>
+</section><section id="check-booleans" class="slide level2">
+<h2>Check booleans</h2>
+<p><code>getsebool -a | grep http</code></p>
+<ul>
+<li>Know the relevant booleans! (RedHat manuals)</li>
+<li>Enable boolean:
+<ul>
+<li><code>sudo setsebool -P httpd_can_network_connect_db on</code></li>
+</ul></li>
+</ul>
 </section><section id="creating-a-policy" class="slide level2">
 <h2>Creating a policy</h2>
 <p>Let's try to set <code>DocumentRoot &quot;/vagrant/www&quot;</code></p>
@@ -789,31 +573,49 @@ $ semodule_package -o httpd-vboxsf.pp -m httpd-vboxsf.mod</code></pre></li>
 </ol>
 <p>Tip: automate this!</p>
 </section></section>
-<section><section id="thats-it" class="titleslide slide level1"><h1>That's it!</h1></section><section id="thank-you" class="slide level2">
-<h2>Thank you!</h2>
-<ul>
-<li><a href="https://twitter.com/bertvanvreckem">@bertvanvreckem</a></li>
-<li><a href="https://github.com/bertvv" class="uri">https://github.com/bertvv</a>
-<ul>
-<li>Ansible/Vagrant</li>
-<li>Course material, lab assignments</li>
-</ul></li>
-<li><a href="https://youtube.com/bertvvrhogent/" class="uri">https://youtube.com/bertvvrhogent/</a>
-<ul>
-<li>Linux Screencasts (in Dutch)</li>
-</ul></li>
-</ul>
+<section><section id="general-guidelines" class="titleslide slide level1"><h1>General guidelines</h1></section><section id="back-up-config-files-before-changing" class="slide level2">
+<h2>Back up config files before changing</h2>
+</section><section id="be-systematic-bottom-up" class="slide level2">
+<h2>Be systematic, bottom-up</h2>
+</section><section id="be-thorough-dont-skip-steps" class="slide level2">
+<h2>Be thorough, don't skip steps</h2>
+</section><section id="do-not-assume-test" class="slide level2">
+<h2>Do not assume: test</h2>
+</section><section id="know-your-environment" class="slide level2">
+<h2>Know your environment</h2>
+</section><section id="know-your-log-files" class="slide level2">
+<h2>Know your log files</h2>
+<figure>
+<img src="img/reading-errorlog-files-small.jpg" alt="Credit: @KrisBuytaert" /><figcaption>Credit: <span class="citation" data-cites="KrisBuytaert">@KrisBuytaert</span></figcaption>
+</figure>
+</section><section id="open-logs-in-separate-terminal" class="slide level2">
+<h2>Open logs in separate terminal</h2>
+</section><section id="read-the-f-error-message" class="slide level2">
+<h2>Read The F*** Error Message!</h2>
+</section><section id="small-steps" class="slide level2">
+<h2>Small steps</h2>
+</section><section id="validate-the-syntax-of-config-files" class="slide level2">
+<h2>Validate the syntax of config files</h2>
+</section><section id="dont-forget-to-reload-service-after-config-change" class="slide level2">
+<h2>Don't forget to reload service after config change</h2>
+</section><section id="verify-each-change" class="slide level2">
+<h2>Verify each change</h2>
+</section><section id="keep-a-cheat-sheetchecklist" class="slide level2">
+<h2>Keep a cheat sheet/checklist</h2>
+</section><section id="use-a-configuration-management-system" class="slide level2">
+<h2>Use a configuration management system</h2>
+</section><section id="automate-tests" class="slide level2">
+<h2>Automate tests</h2>
+</section><section id="never-ping-google" class="slide level2">
+<h2>Never ping Google!</h2>
 </section></section>
-<section><section id="references" class="titleslide slide level1"><h1>References</h1></section><section id="references-1" class="slide level2">
-<h2>References</h2>
-<ul>
-<li>Hayden, M. (2015) <a href="https://major.io/2015/08/21/understanding-systemds-predictable-network-device-names/">Understanding systemd’s predictable network device names</a></li>
-<li>Jahoda, M., et al. (2016a) <a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Security_Guide/index.html">RHEL 7 Security Guide</a></li>
-<li>Jahoda, M., et al. (2016b) <a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/SELinux_Users_and_Administrators_Guide/index.html">RHEL 7 SELinux User's and Administrator's Guide</a></li>
-<li>Svistunov, M., et al. (2016) <a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/index.html">RHEL 7 System Administrator's Guide</a></li>
-<li>Van Vreckem, B. (2015) <a href="https://github.com/bertvv/cheat-sheets/blob/master/src/EL7.md">Enterprise Linux 7 Cheat sheet</a></li>
-<li>Van Vreckem, B. (2017) <a href="https://github.com/bertvv/cheat-sheets/blob/master/src/NetworkTroubleshooting.md">Network troubleshooting guide</a></li>
-</ul>
+<section><section id="thats-it" class="titleslide slide level1"><h1>That's it!</h1></section><section id="thats-it-1" class="slide level2">
+<h2>That's it!</h2>
+<p>Thank you!</p>
+<p><a href="https://twitter.com/bertvanvreckem/">@bertvanvreckem</a></p>
+<p><a href="https://github.com/bertvv/" class="uri">https://github.com/bertvv/</a></p>
+<p><a href="https://bertvv.github.io/linux-network-troubleshooting/" class="uri">https://bertvv.github.io/linux-network-troubleshooting/</a></p>
+<p><a href="https://github.com/bertvv/cheat-sheets/" class="uri">https://github.com/bertvv/cheat-sheets/</a></p>
 </section></section>
     </div>
   </div>

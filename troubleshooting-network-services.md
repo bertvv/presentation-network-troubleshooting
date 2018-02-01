@@ -1,8 +1,8 @@
-% Basic commands for EL7
+% Troubleshooting Network Services (on EL7)
 % Bert Van Vreckem
-% CentOS Dojo 2017 Brussels, 2017-02-03
+% CentOS Dojo 2018 Brussels, 2018-02-02
 
-# Intro
+# Introduction
 
 ## `whoami`
 
@@ -13,32 +13,36 @@
 - *Open source* contributor: <https://github.com/bertvv/>
     - Ansible roles
     - Scripts
-    - ...
+    - Learning resources
 
-## This talk is for you if you're
+## This talk is for you if
 
-- (Relatively) new to Linux/CentOS
-- Still struggling with the recent changes EL7
+- Linux/CentOS novice
+- Unfamiliar with EL7/systemd
+- Struggle with network services
 
 ## Agenda
 
-- Network settings (`ip`)
-- Managing services (`systemctl`)
-- Show system logs (`journalctl`)
-- Show sockets (`ss`)
-- Firewall configuration (`firewalld`)
-- Troubleshooting (including *SELinux*)
+- Bottom-up approach
+- Network access (Link) layer
+- Internet layer
+- Transport
+- Application Layer
+- SELinux
+
+<https://github.com/bertvv/presentation-network-troubleshooting/>
 
 ## Remarks
 
-- "Old" commands are (mostly) not mentioned
-    - <https://fedoraproject.org/wiki/SysVinit_to_Systemd_Cheatsheet>
-- I'm neutral w.r.t. systemd, etc. I won't discuss "politics" here!
-- **Interrupt me if you have remarks/questions!**
+**Interrupt me if you have remarks/questions!**
 
 Presentation, example code:
 
-<https://github.com/bertvv/presentation-el7-basics/>
+<https://github.com/bertvv/presentation-network-troubleshooting/>
+
+Troubleshooting guide
+
+<https://bertvv.github.io/linux-network-troubleshooting/>
 
 ## Case: web + db server
 
@@ -52,11 +56,16 @@ Two VirtualBox VMs, set up with Vagrant
 - On `web`, a PHP app runs a query on the `db`
 - `db` is set up correctly, `web` is not
 
----
+## Objective
 
-```
-$ git clone https://github.com/bertvv/presentation-el7-basics.git
-$ cd presentation-el7-basics
+![The PHP application](img/result.png)
+
+## Running the demo environment
+
+```console
+$ git clone https://github.com/bertvv/presentation-network-troubleshooting.git
+[...]
+$ cd presentation-network-troubleshooting/
 $ vagrant status
 Current machine states:
 
@@ -67,309 +76,82 @@ This environment represents multiple VMs. The VMs are all listed
 above with their current state. For more information about a specific
 VM, run `vagrant status NAME`.
 $ vagrant up
+[...]
 ```
 
-# Network settings
+## Test the database server
 
-## `ip`
-
-| Task                | Command              |
-| :---                | :---                 |
-| NIC status          | `ip link`            |
-| IP addresses        | `ip address`, `ip a` |
-| for specific device | `ip a show dev em1`  |
-| Routing info        | `ip route`, `ip r`   |
-
-## Example (VirtualBox VM)
-
-```
-$ ip l
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-2: enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP mode DEFAULT qlen 1000
-    link/ether 08:00:27:8e:91:e0 brd ff:ff:ff:ff:ff:ff
-3: enp0s8: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state DOWN mode DEFAULT qlen 1000
-    link/ether 08:00:27:75:a8:2c brd ff:ff:ff:ff:ff:ff
+```shell
+$ ./query_db.sh 
++ mysql --host=192.168.56.73 --user=demo_user \
++   --password=ArfovWap_OwkUfeaf4 demo \
++   '--execute=SELECT * FROM demo_tbl;'
++----+-------------------+
+| id | name              |
++----+-------------------+
+|  1 | Tuxedo T. Penguin |
+|  2 | Johnny Tables     |
++----+-------------------+
++ set +x
 ```
 
----
+## Use a bottom-up approach
 
-```
-$ ip a
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN 
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-    inet 127.0.0.1/8 scope host lo
-       valid_lft forever preferred_lft forever
-    inet6 ::1/128 scope host 
-       valid_lft forever preferred_lft forever
-2: enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP qlen 1000
-    link/ether 08:00:27:8e:91:e0 brd ff:ff:ff:ff:ff:ff
-    inet 10.0.2.15/24 brd 10.0.2.255 scope global dynamic enp0s3
-       valid_lft 86349sec preferred_lft 86349sec
-    inet6 fe80::a00:27ff:fe8e:91e0/64 scope link 
-       valid_lft forever preferred_lft forever
-3: enp0s8: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state DOWN qlen 1000
-    link/ether 08:00:27:75:a8:2c brd ff:ff:ff:ff:ff:ff
-```
+TCP/IP protocol stack
 
-(`enp0s8` has no IP, caused by Vagrant [bug #8096](https://github.com/mitchellh/vagrant/issues/8096))
+| Layer          | Protocols                | Keywords              |
+| :---           | :---                     | :---                  |
+| Application    | HTTP, DNS, SMB, FTP, ... |                       |
+| Transport      | TCP, UDP                 | sockets, port numbers |
+| Internet       | IP, ICMP                 | routing, IP address   |
+| Network access | Ethernet                 | switch, MAC address   |
+| Physical       |                          | cables                |
 
-## The new interface names
+# Network Access Layer
 
-[Predictable Network Interface Names](https://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames/), since Systemd v197
-
-| Example    | Type                                   |
-| :---       | :---                                   |
-| `em1`      | EMbedded #                             |
-| `eno1`     | EtherNet Onboard adapter #             |
-| `p1p1`     | PCI slot # Port #                      |
-| `enp0s3`   | Ethernet Network Peripheral # serial # |
-| `wlp3s0b1` | Wireless PCI bus # slot #              |
-
-Also, see (Hayden, 2015)
-
-## Configuration
-
-- `systemd-networkd` still reads the traditional `/etc/sysconfig/network-scripts/ifcfg-*`
-- After change, restart `network.service` (see below)
-
----
-
-```bash
-# /etc/sysconfig/network-scripts/ifcfg-enp0s3
-DEVICE=enp0s3
-ONBOOT=yes
-BOOTPROTO=dhcp
-```
-
-```bash
-# /etc/sysconfig/network-scripts/ifcfg-enp0s8
-DEVICE=enp0s8
-ONBOOT=yes
-BOOTPROTO=none
-IPADDR=192.168.56.72
-NETMASK=255.255.255.0
-```
-
-# Managing services with `systemctl`
-
-## `systemctl`
-
-`systemctl COMMAND [OPTION]... NAME`
-
-| Task                | Command                    |
-| :---                | :---                       |
-| Status service      | `systemctl status NAME`    |
-| Start service       | `systemctl start NAME`     |
-| Stop service        | `systemctl stop NAME`      |
-| Restart service     | `systemctl restart NAME`   |
-| Start at boot       | `systemctl enable NAME`    |
-| Don't start at boot | `systemctl disable NAME`   |
-
-Usually, *root permissions* required (`sudo`)
-
----
-
-Default command: `list-units`
-
-| Task              | Command                     |
-| :---              | :---                        |
-| List all services | `systemctl --type=service`  |
-| Running services  | `systemctl --state=running` |
-| Failed services   | `systemctl --failed`        |
-
-# System logs with `systemd-journald`
-
-## `journalctl`
-
-- `journalctl` requires *root permissions*
-    - Or, add user to group `adm` or `systemd-journal`
-- Some "traditional" text-based log files still exist (for now?):
-    - `/var/log/messages` (gone in Fedora!)
-    - `/var/log/httpd/access_log` and `error_log`
-    - ...
-
-## Options
-
-| Action                               | Command                                   |
-| :---                                 | :---                                      |
-| Show latest log and wait for changes | `journalctl -f`, `--follow`               |
-| Show only log of SERVICE             | `journalctl -u SERVICE`, `--unit=SERVICE` |
-| Match executable, e.g. `dhclient`    | `journalctl /usr/sbin/dhclient`           |
-| Match device node, e.g. `/dev/sda`   | `journalctl /dev/sda`                     |
-| Show auditd logs                     | `journalctl _TRANSPORT=audit`             |
-
----
-
-| Action                         | Command                               |
-| :---                           | :---                                  |
-| Show log since last boot       | `journalctl -b`, `--boot`             |
-| Kernel messages (like `dmesg`) | `journalctl -k`, `--dmesg`            |
-| Reverse output (newest first)  | `journalctl -r`, `--reverse`          |
-| Show only errors and worse     | `journalctl -p err`, `--priority=err` |
-| Since yesterday                | `journalctl --since=yesterday`        |
-
----
-
-Filter on time (example):
-
-```
-journalctl --since=2014-06-00 \
-           --until="2014-06-07 12:00:00"
-```
-
-Much more options in the man-page!
-
-# Show open sockets
-
-## Show sockets: `ss`
-
-- `netstat` is obsolete, replaced by `ss`
-    - `netstat` uses `/proc/net/tcp`
-    - `ss` directly queries the kernel
-- Similar options
-
-## Options
-
-| Task                 | Command                |
-| :---                 | :---                   |
-| Show server sockets  | `ss -l`, `--listening` |
-| Show TCP sockets     | `ss -t`, `--tcp`       |
-| Show UDP sockets     | `ss -u`, `--udp`       |
-| Show port numbers(*) | `ss -n`, `--numeric`   |
-| Show process(†)      | `ss -p`, `--processes` |
-
-(*) instead of service names from `/etc/services`
-
-(†) *root permissions* required
-
-## Example
-
-```
-$ sudo ss -tlnp
-State   Recv-Q Send-Q Local Address:Port Peer Address:Port
-LISTEN  0      128                *:22              *:*    users:(("sshd",pid=1290,fd=3))
-LISTEN  0      100        127.0.0.1:25              *:*    users:(("master",pid=1685,fd=13))
-LISTEN  0      128               :::80             :::*    users:(("httpd",pid=4403,fd=4),("httpd",pid=4402,fd=4),("httpd",pid=4401,fd=4),("httpd",pid=4400,fd=4),("httpd",pid=4399,fd=4),("httpd",pid=4397,fd=4))
-LISTEN  0      128               :::22             :::*    users:(("sshd",pid=1290,fd=4))
-LISTEN  0      100              ::1:25             :::*    users:(("master",pid=1685,fd=14))
-LISTEN  0      128               :::443            :::*    users:(("httpd",pid=4403,fd=6),("httpd",pid=4402,fd=6),("httpd",pid=4401,fd=6),("httpd",pid=4400,fd=6),("httpd",pid=4399,fd=6),("httpd",pid=4397,fd=6))
-```
-
-# Firewall configuration with `firewalld`
-
-## Static vs dynamic firewall model
-
-- *ip(6)tables* service: static
-    - change => rule flush + daemon restart
-    - broke stateful firewalling, established connections
-- *firewalld*: dynamic
-    - changes applied directly, no lost connections
-- Both use iptables/netfilter in the background!
-- Tools that depend on "old" model may cause problems
-    - e.g. `docker-compose` (Issue [#2841](https://github.com/docker/compose/issues/2841))
-
-## Zones
-
-- Zone = list of rules to be applied in a specific situation
-    - e.g. public (default), home, work, ...
-- NICs are assigned to zones
-- For a server, `public` zone is probably sufficient
-
-| Task                         | Command                              |
-| :---                         | :---                                 |
-| List all zones               | `firewall-cmd --get-zones`           |
-| Current active zone          | `firewall-cmd --get-active-zones`    |
-| Add interface to active zone | `firewall-cmd --add-interface=IFACE` |
-| Show current rules           | `firewall-cmd --list-all`            |
-
-`firewall-cmd` requires *root permissions*
-
-## Configuring firewall rules
-
-| Task                     | Command                            |
-| :---                     | :---                               |
-| Allow predefined service | `firewall-cmd --add-service=http`  |
-| List predefined services | `firewall-cmd --get-services`      |
-| Allow specific port      | `firewall-cmd --add-port=8080/tcp` |
-| Reload rules             | `firewall-cmd --reload`            |
-| Block all traffic        | `firewall-cmd --panic-on`          |
-| Turn panic mode off      | `firewall-cmd --panic-off`         |
-
-## Persistent changes
-
-- `--permanent` option => not applied immediately!
-- Two methods:
-    1. Execute command once without, once with `--permanent`
-    2. Execute command with `--permanent`, reload rules
-- First method is faster
-
-```ShellSession
-sudo firewall-cmd --add-service=http
-sudo firewall-cmd --add-service=http --permanent
-sudo firewall-cmd --add-service=https
-sudo firewall-cmd --add-service=https --permanent
-```
-
-## Gotcha
-
-Zone assignments may be overwritten at boot time (CentOS [issue #7407](https://bugs.centos.org/view.php?id=7407))
-
-Reproduce:
-
-1. Remove interface from public zone
-
-```
-$ sudo firewall-cmd --get-active-zones
-public
-  interfaces: enp0s3 enp0s8
-$ sudo firewall-cmd --remove-interface=enp0s3
-success
-[vagrant@db ~]$ sudo firewall-cmd --get-active-zones
-public
-  interfaces: enp0s8
-```
-
----
-
-2. Reboot, then:
-
-```
-$ sudo firewall-cmd --get-active-zones
-public
-  interfaces: enp0s3
-```
-
-- Cause: `/etc/sysconfig/network-scripts/ifup-eth`
-- Workaround: remove `firewall-cmd` invocation
-
-# Troubleshooting
-
-## General guidelines
-
-- Follow TCP/IP (or OSI) stack
-- Bottom-up:
-    1. Link layer
-    2. Internet layer
-    3. Transport layer
-    4. Application layer
-- Know your network, i.e. expected values
-- Be thorough, check assumptions
-
-Goal: see the web page at <http://192.168.56.72/test.php>
-
-## Checklist: Link layer
+## Network Access Layer
 
 - bare metal:
     - test the cable(s)
     - check switch/NIC LEDs
 - VM (e.g. VirtualBox):
-    - check Adapter type & settings
+    - check virtual network adapter type & settings
 - `ip link`
 
-## Checklist: Internet layer
+## VirtualBox networking: NAT
 
-- Local settings:
+![VirtualBox NAT Adapter](img/VirtualBox-networking-NAT.png)
+
+## VirtualBox networking: NAT
+
+- Reliable *Internet access*
+- **Not routable** from host system
+
+## VirtualBox networking: bridged
+
+![VirtualBox Bridged Adapter](img/VirtualBox-networking-bridged.png)
+
+## VirtualBox networking: bridged
+
+- *Routable* from host system
+- **Inconsistent** IP settings
+    - May not recieve IP settings from DHCP
+
+## Virtualbox networking: host-only
+
+![VirtualBox Host-only Adapter](img/VirtualBox-networking-HO.png)
+
+## VirtualBox networking: host-only
+
+- *Routable* from host system
+- *Consistent* IP settings
+- **No Internet** access
+
+# Internet Layer
+
+## Checklist: Internet Layer
+
+- Local network configuration:
     - IP address: `ip a`
     - Default gateway: `ip r`
     - DNS service: `/etc/resolv.conf`
@@ -378,16 +160,179 @@ Goal: see the web page at <http://192.168.56.72/test.php>
     - Ping default GW/DNS
     - Query DNS (`dig`, `nslookup`, `getent`)
 
-## Checklist: Transport layer
+*Know the expected values!*
+
+## VirtualBox networking: NAT
+
+| Host    | IP           |
+| :---    | :---         |
+| VM      | 10.0.2.15/24 |
+| Gateway | 10.0.2.2     |
+| DNS     | 10.0.2.3     |
+
+## VirtualBox networking: host-only
+
+The "default" host-only network:
+
+|              | IP              |
+| :---         | :---            |
+| Host system  | 192.168.56.1/24 |
+| Virtual DHCP | 192.168.56.100  |
+| Range from   | 192.168.56.101  |
+| Range to     | 192.168.56.254  |
+
+## Checklist: Internet Layer
+
+- *Local network configuration:*
+    - IP address: `ip a`
+    - Default gateway: `ip r`
+    - DNS service: `/etc/resolv.conf`
+- LAN connectivity:
+    - Ping between hosts
+    - Ping default GW/DNS
+    - Query DNS (`dig`, `nslookup`, `getent`)
+
+## Local configuration: `ip address`
+
+- IP address?
+- In correct subnet?
+- DHCP or fixed IP?
+- Check configuration: `/etc/sysconfig/network-scripts/ifcfg-*`
+
+## Common causes (DHCP)
+
+- No IP
+    - DHCP unreachable
+    - DHCP won't give an IP
+- 169.254.x.x
+    - No DHCP offer, "link-local" address
+- Unexpected subnet
+    - Bad config (fixed IP set?)
+
+## Common causes (Fixed IP)
+
+- Unexpected subnet
+    - Check config
+- Correct IP, "network unreachable"
+    - Check network mask
+
+## Local configuration: `ip route`
+
+- Default GW present?
+- In correct subnet?
+- Check network configuration
+
+## DNS server: `/etc/resolv.conf`
+
+- `nameserver` option present?
+- Expected IP?
+
+## Checklist: Internet Layer
+
+- Local network configuration:
+    - IP address: `ip a`
+    - Default gateway: `ip r`
+    - DNS service: `/etc/resolv.conf`
+- *LAN connectivity*:
+    - Ping between hosts
+    - Ping default GW/DNS
+    - Query DNS (`dig`, `nslookup`, `getent`)
+
+## LAN connectivity: `ping`
+
+- host -> VM: `ping 192.168.56.72`
+- VM -> host: `ping 192.168.56.1`
+- VM -> GW: `ping 10.0.2.2`
+- VM -> DNS: `ping 10.0.2.3`
+
+Remark: some routers **block** ICMP!
+
+## LAN connectivity: DNS
+
+- `dig icanhazip.com`
+- `nslookup icanhazip.com`
+- `getent ahosts icanhazip.com`
+
+## LAN connectivity
+
+Next step: routing beyond GW
+
+# Transport Layer
+
+## Checklist: Transport Layer
 
 - Service running? `sudo systemctl status SERVICE`
-- Correct port/interface? `sudo ss -tulpn`
-- Firewall settings? `sudo firewall-cmd --list-all`
+- Correct port/inteface? `sudo ss -tulpn`
+- Firewall settings: `sudo firewall-cmd --list-all`
 
-## Checklist: Application layer
+## Is the service running?
 
-- Check the logs `sudo journalctl -f -u SERVICE`
+`systemctl status httpd.service`
+
+- `Active: active (running)` vs. `inactive (dead)`
+    - `systemctl start httpd`
+    - Fail? See below (Application layer)
+- Start at boot: `enabled` vs. `disabled`
+    - `systemctl enable httpd`
+
+## Correct ports/interfaces?
+
+- Use `ss` (not `netstat`)
+    - TCP service: `sudo ss -tlnp`
+    - UDP service: `sudo ss -ulnp`
+- Correct port number?
+    - See `/etc/services`
+- Correct interface?
+    - Only loopback?
+
+## Firewall settings
+
+`sudo firewall-cmd --list-all`
+
+- Is the service or port listed?
+- Use `--add-service` if possible
+    - Supported: `--get-services`
+- Don't use both `--add-service` and `--add-port`
+- Add `--permanent`
+- `--reload` firewall rules
+
+---
+
+```console
+$ sudo firewall-cmd --add-service=http --permanent
+$ sudo firewall-cmd --add-service=https --permanent
+$ sudo firewall-cmd --reload
+```
+
+# Application Layer
+
+## Checklist: Application Layer
+
+- Check the logs `journalctl`
 - Check config file syntax
+- Other checks are application dependent
+    - Read the reference manuals!
+
+## Check the log files
+
+- Either `journalctl`: `journalctl -f -u httpd.service`
+- Or `/var/log/`:
+    - `tail -f /var/log/httpd/error_log`
+
+## Check config file syntax
+
+- Application dependent, for Apache: `apachectl configtest`
+
+## Read the fine manual!
+
+- [RedHat Manuals](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/):
+    - System Administrator's Guide
+    - Networking guide
+    - SELinux guide
+- Reference manuals, e.g.:
+    - <https://httpd.apache.org/docs/2.4/configuring.html>
+- Man pages
+    - smb.conf(5), dhcpd.conf(5), named.conf(5), ...
 
 # SELinux troubleshooting
 
@@ -396,44 +341,29 @@ Goal: see the web page at <http://192.168.56.72/test.php>
 - SELinux is Mandatory Access Control in the Linux kernel
 - Settings:
     - Booleans: `getsebool`, `setsebool`
-    - Contexts, labels: `ls -Z`, `chcon`
+    - Contexts, labels: `ls -Z`, `chcon`, `restorecon`
     - Policy modules: `sepolicy`
 
-## Enabling SELinux
+## Do not disable SELinux
 
-| Task               | Command                |
-| :---               | :---                   |
-| Get current status | `sestatus`             |
-| Get mode           | `getenforce`           |
-| Enable SELinux     | `setenforce Enforcing` |
+<https://stopdisablingselinux.com/>
 
-Enable SELinux permanently: `/etc/sysconfig/selinux`
+## Check file context
 
-## Boolean settings
+- Is the file context as expected?
+    - `ls -Z /var/www/html`
+- Set file context to default value
+    - `sudo restorecon -R /var/www/`
+- Set file context to specified value
+    - `sudo chcon -t httpd_sys_content_t test.php`
 
-| Task                     | Command                     |
-| :---                     | :---                        |
-| List all boolean values  | `getsebool -a`              |
-| List http-related values | `getsebool -a | grep httpd` |
-| Show specific value      | `getsebool VAR`             |
-| Set value                | `setsebool VAR on`          |
-| Persistent               | `setsebool -P VAR on`       |
+## Check booleans
 
-## File context
+`getsebool -a | grep http`
 
-| Task                       | Command                    |
-| :---                       | :---                       |
-| Show SELinux context       | `ls -Z`                    |
-| Reset context              | `restorecon PATH`          |
-| Reset context recursively  | `restorecon -R PATH`       |
-| Change context recursively | `chcon -t CONTEXT -R PATH` |
-
-Example of adding a context rule:
-
-```
-$ sudo semanage fcontext -a -t httpd_sys_content_t "/srv/www(/.*)?"
-$ cat /etc/selinux/targeted/contexts/files/file_contexts.local
-```
+- Know the relevant booleans! (RedHat manuals)
+- Enable boolean:
+    - `sudo setsebool -P httpd_can_network_connect_db on`
 
 ## Creating a policy
 
@@ -493,24 +423,52 @@ Instead of setting the files to the expected context, allow httpd to access file
 
 Tip: automate this!
 
+# General guidelines
+
+## Back up config files before changing
+
+## Be systematic, bottom-up
+
+## Be thorough, don't skip steps
+
+## Do not assume: test
+
+## Know your environment
+
+## Know your log files
+
+![Credit: @KrisBuytaert](img/reading-errorlog-files-small.jpg)
+
+## Open logs in separate terminal
+
+## Read The F*** Error Message!
+
+## Small steps
+
+## Validate the syntax of config files
+
+## Don't forget to reload service after config change
+
+## Verify each change
+
+## Keep a cheat sheet/checklist
+
+## Use a configuration management system
+
+## Automate tests
+
+## Never ping Google!
+
 # That's it!
 
 ## Thank you!
 
-- [&#64;bertvanvreckem](https://twitter.com/bertvanvreckem)
-- <https://github.com/bertvv>
-    - Ansible/Vagrant
-    - Course material, lab assignments
-- <https://youtube.com/bertvvrhogent/>
-    - Linux Screencasts (in Dutch)
+[&#64;bertvanvreckem](https://twitter.com/bertvanvreckem/)
 
-# References
+<https://github.com/bertvv/>
 
-## References
+<https://bertvv.github.io/linux-network-troubleshooting/>
 
-- Hayden, M. (2015) [Understanding systemd’s predictable network device names](https://major.io/2015/08/21/understanding-systemds-predictable-network-device-names/)
-- Jahoda, M., et al. (2016a) [RHEL 7 Security Guide](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Security_Guide/index.html)
-- Jahoda, M., et al. (2016b) [RHEL 7 SELinux User's and Administrator's Guide](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/SELinux_Users_and_Administrators_Guide/index.html)
-- Svistunov, M., et al. (2016) [RHEL 7 System Administrator's Guide](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/index.html)
-- Van Vreckem, B. (2015) [Enterprise Linux 7 Cheat sheet](https://github.com/bertvv/cheat-sheets/blob/master/src/EL7.md)
-- Van Vreckem, B. (2017) [Network troubleshooting guide](https://github.com/bertvv/cheat-sheets/blob/master/src/NetworkTroubleshooting.md)
+<https://github.com/bertvv/cheat-sheets/>
+
+
