@@ -1,0 +1,20 @@
+; Hash: ead3d6632fb3189dc58cbf3cd4d483a8 18042020
+; Reverse zone file for example.com
+; Ansible managed
+; vi: ft=bindzone
+
+$TTL 1W
+$ORIGIN 16.172.in-addr.arpa.
+
+@ IN SOA ns1.example.com. hostmaster.example.com. (
+  18042020
+  1D
+  1H
+  1W
+  1D )
+
+                 IN  NS   ns1.example.com.
+                 IN  NS   ns2.example.com.
+
+10.0             IN  PTR  priv0001.example.com.
+11.0             IN  PTR  priv0002.example.com.
