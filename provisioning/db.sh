@@ -124,7 +124,7 @@ CREATE TABLE ${table} (
   PRIMARY KEY(id)
 );
 INSERT INTO ${table} (name) VALUES ("Tuxedo T. Penguin");
-INSERT INTO ${table} (name) VALUES ("Johnny Tables");
+INSERT INTO ${table} (name) VALUES ("Bobby Tables");
 _EOF_
 
 }
