@@ -340,7 +340,7 @@ $ sudo firewall-cmd --reload
 ## Checklist: Application Layer
 
 - Check the *logs*: `journalctl`
-- Check config file *syntax*
+- Validate config file *syntax*
 - Use (command line) *client* tools
     - e.g. `curl`, `smbclient` (Samba), `dig` (DNS), etc.
 - Other checks are application dependent
@@ -455,6 +455,53 @@ Instead of setting the files to the expected context, allow httpd to access file
     ```
 
 Tip: automate this!
+
+# BIND troubleshooting
+
+## BIND setup
+
+Authoritative name server for domain *example.com*
+
+| Host     | IP            |
+| :---     | :---          |
+| ns1      | 192.168.56.10 |
+| ns2      | 192.168.56.11 |
+| dc       | 192.168.56.40 |
+| web      | 192.168.56.72 |
+| db       | 192.168.56.73 |
+| priv0001 | 172.16.0.10   |
+| priv0002 | 172.16.0.11   |
+
+## Goal: make the tests succeed!
+
+```console
+$ ./tests/runtests.sh 
+Testing 192.168.56.10
+ ✓ The dig command should be installed
+ ✓ It should return the NS record(s)
+ ✓ It should be able to resolve host names
+ ✓ It should be able to do reverse lookups
+ ✓ It should be able to resolve aliases
+ ✓ It should return the SRV record(s)
+
+6 tests, 0 failures
+Testing 192.168.56.11
+ ✓ The dig command should be installed
+ ✓ It should return the NS record(s)
+ ✓ It should be able to resolve host names
+ ✓ It should be able to do reverse lookups
+ ✓ It should be able to resolve aliases
+ ✓ It should return the SRV record(s)
+
+6 tests, 0 failures
+```
+
+## Useful commands
+
+- Check the logs: `journalctl -u named`
+- Validate config files:
+    - main: `named-checkconf /etc/named.conf`
+    - zone files: `named-checkzone ZONE FILE`
 
 # General guidelines
 

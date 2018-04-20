@@ -144,8 +144,8 @@ $ vagrant up
 +----+-------------------+
 | id | name              |
 +----+-------------------+
-|  1 | Tuxedo T. Penguin |
-|  2 | Johnny Tables     |
+| 1  | Tuxedo T. Penguin |
+| 2  | Bobby Tables      |
 +----+-------------------+
 + set +x</code></pre>
 </section><section id="use-a-bottom-up-approach" class="slide level2">
@@ -311,14 +311,12 @@ $ vagrant up
 </table>
 </section><section id="checklist-internet-layer-1" class="slide level2">
 <h2>Checklist: Internet Layer</h2>
-<ul>
-<li>Checking <em>Local network configuration:</em>
-<ul>
+<p>Checking <em>Local network configuration:</em></p>
+<ol type="1">
 <li>IP address: <code>ip a</code></li>
 <li>Default gateway: <code>ip r</code></li>
 <li>DNS service: <code>/etc/resolv.conf</code></li>
-</ul></li>
-</ul>
+</ol>
 </section><section id="local-configuration-ip-address" class="slide level2">
 <h2>Local configuration: <code>ip address</code></h2>
 <ul>
@@ -392,13 +390,11 @@ DEVICE=enp0s8
 </ul>
 </section><section id="checklist-internet-layer-2" class="slide level2">
 <h2>Checklist: Internet Layer</h2>
-<ul>
-<li>Checking routing within the <em>LAN</em>:
+<p>Checking routing within the <em>LAN</em>:</p>
 <ul>
 <li>Ping between hosts</li>
 <li>Ping default GW/DNS</li>
 <li>Query DNS (<code>dig</code>, <code>nslookup</code>, <code>getent</code>)</li>
-</ul></li>
 </ul>
 </section><section id="lan-connectivity-ping" class="slide level2">
 <h2>LAN connectivity: <code>ping</code></h2>
@@ -422,11 +418,11 @@ DEVICE=enp0s8
 </section></section>
 <section><section id="transport-layer" class="titleslide slide level1"><h1>Transport Layer</h1></section><section id="checklist-transport-layer" class="slide level2">
 <h2>Checklist: Transport Layer</h2>
-<ul>
+<ol type="1">
 <li>Service running? <code>sudo systemctl status SERVICE</code></li>
 <li>Correct port/inteface? <code>sudo ss -tulpn</code></li>
 <li>Firewall settings: <code>sudo firewall-cmd --list-all</code></li>
-</ul>
+</ol>
 </section><section id="is-the-service-running" class="slide level2">
 <h2>Is the service running?</h2>
 <p><code>systemctl status httpd.service</code></p>
@@ -481,10 +477,10 @@ $ sudo firewall-cmd --reload</code></pre>
 <h2>Checklist: Application Layer</h2>
 <ul>
 <li>Check the <em>logs</em>: <code>journalctl</code></li>
-<li>Check config file <em>syntax</em></li>
+<li>Validate config file <em>syntax</em></li>
 <li>Use (command line) <em>client</em> tools
 <ul>
-<li>e.g. <code>curl</code></li>
+<li>e.g. <code>curl</code>, <code>smbclient</code> (Samba), <code>dig</code> (DNS), etc.</li>
 </ul></li>
 <li>Other checks are application dependent
 <ul>
@@ -597,6 +593,79 @@ $ semodule_package -o httpd-vboxsf.pp -m httpd-vboxsf.mod</code></pre></li>
 </ol>
 <p>Tip: automate this!</p>
 </section></section>
+<section><section id="bind-troubleshooting" class="titleslide slide level1"><h1>BIND troubleshooting</h1></section><section id="bind-setup" class="slide level2">
+<h2>BIND setup</h2>
+<p>Authoritative name server for domain <em>example.com</em></p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Host</th>
+<th style="text-align: left;">IP</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">ns1</td>
+<td style="text-align: left;">192.168.56.10</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ns2</td>
+<td style="text-align: left;">192.168.56.11</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">dc</td>
+<td style="text-align: left;">192.168.56.40</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">web</td>
+<td style="text-align: left;">192.168.56.72</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">db</td>
+<td style="text-align: left;">192.168.56.73</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">priv0001</td>
+<td style="text-align: left;">172.16.0.10</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">priv0002</td>
+<td style="text-align: left;">172.16.0.11</td>
+</tr>
+</tbody>
+</table>
+</section><section id="goal-make-the-tests-succeed" class="slide level2">
+<h2>Goal: make the tests succeed!</h2>
+<pre class="console"><code>$ ./tests/runtests.sh 
+Testing 192.168.56.10
+ ✓ The dig command should be installed
+ ✓ It should return the NS record(s)
+ ✓ It should be able to resolve host names
+ ✓ It should be able to do reverse lookups
+ ✓ It should be able to resolve aliases
+ ✓ It should return the SRV record(s)
+
+6 tests, 0 failures
+Testing 192.168.56.11
+ ✓ The dig command should be installed
+ ✓ It should return the NS record(s)
+ ✓ It should be able to resolve host names
+ ✓ It should be able to do reverse lookups
+ ✓ It should be able to resolve aliases
+ ✓ It should return the SRV record(s)
+
+6 tests, 0 failures</code></pre>
+</section><section id="useful-commands" class="slide level2">
+<h2>Useful commands</h2>
+<ul>
+<li>Check the logs: <code>journalctl -u named</code></li>
+<li>Validate config files:
+<ul>
+<li>main: <code>named-checkconf /etc/named.conf</code></li>
+<li>zone files: <code>named-checkzone ZONE FILE</code></li>
+</ul></li>
+</ul>
+</section></section>
 <section><section id="general-guidelines" class="titleslide slide level1"><h1>General guidelines</h1></section><section id="back-up-config-files-before-changing" class="slide level2">
 <h2>Back up config files before changing</h2>
 </section><section id="be-systematic-bottom-up" class="slide level2">
@@ -620,8 +689,8 @@ $ semodule_package -o httpd-vboxsf.pp -m httpd-vboxsf.mod</code></pre></li>
 <h2>Small steps</h2>
 </section><section id="validate-the-syntax-of-config-files" class="slide level2">
 <h2>Validate the syntax of config files</h2>
-</section><section id="dont-forget-to-reload-service-after-config-change" class="slide level2">
-<h2>Don't forget to reload service after config change</h2>
+</section><section id="reload-service-after-config-change" class="slide level2">
+<h2>Reload service after config change</h2>
 </section><section id="verify-each-change" class="slide level2">
 <h2>Verify each change</h2>
 </section><section id="keep-a-cheat-sheetchecklist" class="slide level2">
