@@ -57,17 +57,14 @@ start_basic_services() {
 
 setup_bind() {
   info "Starting BIND"
-  systemctl start named.service
   systemctl enable named.service
   firewall-cmd --add-service=dns
   firewall-cmd --add-service=dns --permanent
 
   cp /vagrant/provisioning/dns/named.conf /etc/
   cp /vagrant/provisioning/dns/example.com /var/named
-  cp /vagrant/provisioning/dns/16.172.in-addr.arpa /var/named
-  cp /vagrant/provisioning/dns/56.168.192.in-addr.arpa /var/named
+  cp /vagrant/provisioning/dns/*.in-addr.arpa /var/named
 
-  systemctl reload named
 }
 
 # Color definitions

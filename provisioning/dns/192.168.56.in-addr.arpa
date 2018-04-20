@@ -4,7 +4,7 @@
 ; vi: ft=bindzone
 
 $TTL 1W
-$ORIGIN 56.168.192.in-addr.arpa.
+$ORIGIN 192.168.56.in-addr.arpa.
 
 @ IN SOA ns1.example.com. hostmaster.example.com. (
   18042021
@@ -22,5 +22,5 @@ $ORIGIN 56.168.192.in-addr.arpa.
 40               IN  PTR  dc.example.com.
 
 72               IN  PTR  web.example.com.
-73		 IN  PTR  db.example.com.
+73               IN  PTR  db.example.com.
 
