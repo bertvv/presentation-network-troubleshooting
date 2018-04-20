@@ -4,15 +4,15 @@ This repository contains the slides and code examples for my talk at [CentOS Doj
 
 Check out my guide "Troubleshooting network services in Linux" at <https://bertvv.github.io/linux-network-troubleshooting/>.
 
-## Compiling the slides
+## Setting up the demo environment
 
-The slides were created using [Pandoc](http://pandoc.org/) The [source file](troubleshooting-network-services.md) in [Markdown](https://daringfireball.net/projects/markdown/) was converted into a [Reveal js](http://lab.hakim.se/reveal-js/#/) presentation. A [Makefile](Makefile) is provided to automate the build process.
+The demo environment is included in this repository as a Vagrant environment. To run it yourself, you can do the following:
 
-After ensuring you have Pandoc installed, run `make all` to generate the presentation. You can find it in the [`docs/`](docs/) folder.
-
-## Running the code
-
-During the presentation, I use the included Vagrant environment as a demo. To recreate the setup, do:
+- Ensure the necessary software is installed:
+    - [VirtualBox](https://www.virtualbox.org/wiki/Downloads) (inlcuding Extension pack)
+    - [Vagrant](https://www.vagrantup.com/)
+    - [Git](https://git-scm.com/)
+- Clone the repository and start the environment:
 
 ```shell
 $ git clone https://github.com/bertvv/presentation-network-troubleshooting.git
@@ -42,6 +42,12 @@ The setup consists of two VirtualBox VMs:
 - `db` is set up correctly, `web` is not
 
 Throughout the presentation, we'll be fixing issues with `web`.
+
+## Compiling the slides
+
+The slides were created using [Pandoc](http://pandoc.org/) The [source file](troubleshooting-network-services.md) in [Markdown](https://daringfireball.net/projects/markdown/) was converted into a [Reveal js](http://lab.hakim.se/reveal-js/#/) presentation. A [Makefile](Makefile) is provided to automate the build process.
+
+After ensuring you have Pandoc installed, run `make all` to generate the presentation. You can find it in the [`docs/`](docs/) folder.
 
 ## License
 
