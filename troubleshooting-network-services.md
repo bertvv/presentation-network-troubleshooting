@@ -1,6 +1,17 @@
 % Troubleshooting Network Services (on EL7)
 % Bert Van Vreckem
-% CentOS Dojo 2018 Brussels, 2018-02-02
+% LOADays, 2018-04-20
+
+# Preparation
+
+## Before we begin
+
+- Software prerequisites:
+    - Git
+    - VirtualBox
+    - Vagrant
+- Get the code from <https://github.com/bertvv/presentation-network-troubleshooting.git>
+- Set up the test environment: `vagrant up`
 
 # Introduction
 
@@ -19,7 +30,7 @@
 
 - Linux/CentOS novice
 - Unfamiliar with EL7/systemd
-- Struggle with network services
+- Struggle with network services and/or SELinux
 
 ## Agenda
 
@@ -30,23 +41,11 @@
 - Application Layer
 - SELinux
 
-<https://github.com/bertvv/presentation-network-troubleshooting/>
-
-## Remarks
-
 **Interrupt me if you have remarks/questions!**
-
-Presentation, example code:
-
-<https://github.com/bertvv/presentation-network-troubleshooting/>
-
-Troubleshooting guide
-
-<https://bertvv.github.io/linux-network-troubleshooting/>
 
 ## Terminology
 
-- *host system* = the physical machine running virtualisation software
+- *host system* = the physical machine running virtualisation software (my laptop)
 - *network host* = any machine with an IP address
 
 ## Case: web + db server
@@ -94,8 +93,8 @@ $ ./query_db.sh
 +----+-------------------+
 | id | name              |
 +----+-------------------+
-|  1 | Tuxedo T. Penguin |
-|  2 | Johnny Tables     |
+| 1  | Tuxedo T. Penguin |
+| 2  | Bobby Tables      |
 +----+-------------------+
 + set +x
 ```
@@ -154,12 +153,19 @@ TCP/IP protocol stack
 - *Consistent* IP settings
 - **No Internet** access
 
+## Recommendation
+
+- Adapter 1: NAT
+- Adapter 2: Host-only
+
+Best of both worlds!
+
 # Internet Layer
 
 ## Checklist: Internet Layer
 
-- *Local* network configuration
-- Routing within the *LAN*
+1. *Local* network configuration
+2. Routing within the *LAN*
 
 **Know the expected values!**
 
@@ -184,10 +190,11 @@ The "default" host-only network:
 
 ## Checklist: Internet Layer
 
-- Checking *Local network configuration:*
-    - IP address: `ip a`
-    - Default gateway: `ip r`
-    - DNS service: `/etc/resolv.conf`
+Checking *Local network configuration:*
+
+1. IP address: `ip a`
+2. Default gateway: `ip r`
+3. DNS service: `/etc/resolv.conf`
 
 ## Local configuration: `ip address`
 
@@ -195,6 +202,34 @@ The "default" host-only network:
 - In correct subnet?
 - DHCP or fixed IP?
 - Check configuration: `/etc/sysconfig/network-scripts/ifcfg-*`
+
+---
+
+Example: DHCP
+
+```console
+[vagrant@db ~]$ cat /etc/sysconfig/network-scripts/ifcfg-enp0s3 
+TYPE=Ethernet
+BOOTPROTO=dhcp
+NAME=enp0s3
+DEVICE=enp0s3
+ONBOOT=yes
+[...]
+```
+
+---
+
+Example: Static IP
+
+```console
+$ cat /etc/sysconfig/network-scripts/ifcfg-enp0s8
+BOOTPROTO=none
+ONBOOT=yes
+IPADDR=192.168.56.73
+NETMASK=255.255.255.0
+DEVICE=enp0s8
+[...]
+```
 
 ## Common causes (DHCP)
 
@@ -228,10 +263,11 @@ Watch the logs: `sudo journalctl -f`
 
 ## Checklist: Internet Layer
 
-- Checking routing within the *LAN*:
-    - Ping between hosts
-    - Ping default GW/DNS
-    - Query DNS (`dig`, `nslookup`, `getent`)
+Checking routing within the *LAN*:
+
+- Ping between hosts
+- Ping default GW/DNS
+- Query DNS (`dig`, `nslookup`, `getent`)
 
 ## LAN connectivity: `ping`
 
@@ -256,9 +292,9 @@ Next step: routing beyond GW
 
 ## Checklist: Transport Layer
 
-- Service running? `sudo systemctl status SERVICE`
-- Correct port/inteface? `sudo ss -tulpn`
-- Firewall settings: `sudo firewall-cmd --list-all`
+1. Service running? `sudo systemctl status SERVICE`
+2. Correct port/inteface? `sudo ss -tulpn`
+3. Firewall settings: `sudo firewall-cmd --list-all`
 
 ## Is the service running?
 
@@ -306,7 +342,7 @@ $ sudo firewall-cmd --reload
 - Check the *logs*: `journalctl`
 - Check config file *syntax*
 - Use (command line) *client* tools
-    - e.g. `curl`
+    - e.g. `curl`, `smbclient` (Samba), `dig` (DNS), etc.
 - Other checks are application dependent
     - Read the reference manuals!
 
@@ -444,7 +480,7 @@ Tip: automate this!
 
 ## Validate the syntax of config files
 
-## Don't forget to reload service after config change
+## Reload service after config change
 
 ## Verify each change
 

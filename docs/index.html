@@ -30,9 +30,22 @@
 <section>
   <h1 class="title">Troubleshooting Network Services (on EL7)</h1>
   <p class="author">Bert Van Vreckem</p>
-  <p class="date">CentOS Dojo 2018 Brussels, 2018-02-02</p>
+  <p class="date">LOADays, 2018-04-20</p>
 </section>
 
+<section><section id="preparation" class="titleslide slide level1"><h1>Preparation</h1></section><section id="before-we-begin" class="slide level2">
+<h2>Before we begin</h2>
+<ul>
+<li>Software prerequisites:
+<ul>
+<li>Git</li>
+<li>VirtualBox</li>
+<li>Vagrant</li>
+</ul></li>
+<li>Get the code from <a href="https://github.com/bertvv/presentation-network-troubleshooting.git" class="uri">https://github.com/bertvv/presentation-network-troubleshooting.git</a></li>
+<li>Set up the test environment: <code>vagrant up</code></li>
+</ul>
+</section></section>
 <section><section id="introduction" class="titleslide slide level1"><h1>Introduction</h1></section><section id="whoami" class="slide level2">
 <h2><code>whoami</code></h2>
 <ul>
@@ -54,7 +67,7 @@
 <ul>
 <li>Linux/CentOS novice</li>
 <li>Unfamiliar with EL7/systemd</li>
-<li>Struggle with network services</li>
+<li>Struggle with network services and/or SELinux</li>
 </ul>
 </section><section id="agenda" class="slide level2">
 <h2>Agenda</h2>
@@ -66,18 +79,11 @@
 <li>Application Layer</li>
 <li>SELinux</li>
 </ul>
-<p><a href="https://github.com/bertvv/presentation-network-troubleshooting/" class="uri">https://github.com/bertvv/presentation-network-troubleshooting/</a></p>
-</section><section id="remarks" class="slide level2">
-<h2>Remarks</h2>
 <p><strong>Interrupt me if you have remarks/questions!</strong></p>
-<p>Presentation, example code:</p>
-<p><a href="https://github.com/bertvv/presentation-network-troubleshooting/" class="uri">https://github.com/bertvv/presentation-network-troubleshooting/</a></p>
-<p>Troubleshooting guide</p>
-<p><a href="https://bertvv.github.io/linux-network-troubleshooting/" class="uri">https://bertvv.github.io/linux-network-troubleshooting/</a></p>
 </section><section id="terminology" class="slide level2">
 <h2>Terminology</h2>
 <ul>
-<li><em>host system</em> = the physical machine running virtualisation software</li>
+<li><em>host system</em> = the physical machine running virtualisation software (my laptop)</li>
 <li><em>network host</em> = any machine with an IP address</li>
 </ul>
 </section><section id="case-web-db-server" class="slide level2">
@@ -235,13 +241,20 @@ $ vagrant up
 <li><em>Consistent</em> IP settings</li>
 <li><strong>No Internet</strong> access</li>
 </ul>
+</section><section id="recommendation" class="slide level2">
+<h2>Recommendation</h2>
+<ul>
+<li>Adapter 1: NAT</li>
+<li>Adapter 2: Host-only</li>
+</ul>
+<p>Best of both worlds!</p>
 </section></section>
 <section><section id="internet-layer" class="titleslide slide level1"><h1>Internet Layer</h1></section><section id="checklist-internet-layer" class="slide level2">
 <h2>Checklist: Internet Layer</h2>
-<ul>
+<ol type="1">
 <li><em>Local</em> network configuration</li>
 <li>Routing within the <em>LAN</em></li>
-</ul>
+</ol>
 <p><strong>Know the expected values!</strong></p>
 </section><section id="virtualbox-networking-nat-2" class="slide level2">
 <h2>VirtualBox networking: NAT</h2>
@@ -314,6 +327,26 @@ $ vagrant up
 <li>DHCP or fixed IP?</li>
 <li>Check configuration: <code>/etc/sysconfig/network-scripts/ifcfg-*</code></li>
 </ul>
+</section><section class="slide level2">
+
+<p>Example: DHCP</p>
+<pre class="console"><code>[vagrant@db ~]$ cat /etc/sysconfig/network-scripts/ifcfg-enp0s3 
+TYPE=Ethernet
+BOOTPROTO=dhcp
+NAME=enp0s3
+DEVICE=enp0s3
+ONBOOT=yes
+[...]</code></pre>
+</section><section class="slide level2">
+
+<p>Example: Static IP</p>
+<pre class="console"><code>$ cat /etc/sysconfig/network-scripts/ifcfg-enp0s8
+BOOTPROTO=none
+ONBOOT=yes
+IPADDR=192.168.56.73
+NETMASK=255.255.255.0
+DEVICE=enp0s8
+[...]</code></pre>
 </section><section id="common-causes-dhcp" class="slide level2">
 <h2>Common causes (DHCP)</h2>
 <ul>
