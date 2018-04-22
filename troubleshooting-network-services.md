@@ -472,6 +472,8 @@ Authoritative name server for domain *example.com*
 | priv0001 | 172.16.0.10   |
 | priv0002 | 172.16.0.11   |
 
+The host `web` has an alias, `www`.
+
 ## Goal: make the tests succeed!
 
 ```console
